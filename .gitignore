@@ -131,3 +131,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 silverdock.pem.pub
+/conf/redis/redis.conf

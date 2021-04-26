@@ -1,0 +1,196 @@
+---
+
+# All services:
+# workspace php-fpm mariadb mongo redis queue-worker django celery daphne
+
+version: '3'
+services:
+  ###########################################################################
+  # Workspace
+  ###########################################################################
+  workspace:
+    build:
+      context: ./build/workspace-${WORKSPACE_BASE}
+      args:
+        SILVERDOCK_PHP_VERSION: ${PHP_VERSION}
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+        PUID: ${PHP_PUID}
+        PGID: ${PHP_PGID}
+        PHP_INSTALL_GD: ${PHP_INSTALL_GD}
+        PHP_INSTALL_GMP: ${PHP_INSTALL_GMP}
+        PHP_INSTALL_MONGO: ${PHP_INSTALL_MONGO}
+        PHP_INSTALL_REDIS: ${PHP_INSTALL_REDIS}
+        PHP_INSTALL_OPENCC: ${PHP_INSTALL_OPENCC}
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PYTHON_INSTALL_NMAP: ${PYTHON_INSTALL_NMAP}
+        PYTHON_INSTALL_GOOGLEAPI: ${PYTHON_INSTALL_GOOGLEAPI}
+        PYTHON_INSTALL_CHANNELS: ${PYTHON_INSTALL_CHANNELS}
+        PYTHON_INSTALL_ANSIBLE: ${PYTHON_INSTALL_ANSIBLE}
+        PYTHON_INSTALL_ELASTICSEARCH: ${PYTHON_INSTALL_ELASTICSEARCH}
+        PYTHON_INSTALL_PYTEST: ${PYTHON_INSTALL_PYTEST}
+        PYTHON_ISPRODUCTION: ${PYTHON_ISPRODUCTION}
+        PYTHON_INSTALL_TREEBEARD: ${PYTHON_INSTALL_TREEBEARD}
+        PYTHON_INSTALL_WKHTMLTOPDF: ${PYTHON_INSTALL_WKHTMLTOPDF}
+    #restart: always
+    ports:
+      - "${WORKSPACE_SSH_PORT}:22"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  php-fpm:
+    build:
+      context: ./build/php-fpm
+      args:
+        SILVERDOCK_PHP_VERSION: ${PHP_VERSION}
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+        PUID: ${PHP_PUID}
+        PGID: ${PHP_PGID}
+        PHP_INSTALL_GD: ${PHP_INSTALL_GD}
+        PHP_INSTALL_GMP: ${PHP_INSTALL_GMP}
+        PHP_INSTALL_MONGO: ${PHP_INSTALL_MONGO}
+        PHP_INSTALL_REDIS: ${PHP_INSTALL_REDIS}
+        PHP_INSTALL_OPENCC: ${PHP_INSTALL_OPENCC}
+    #restart: always
+    ports:
+      - "127.0.0.1:${PHP_FPM_LISTEN_PORT}:9000"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
+    networks:
+      backend:
+        aliases:
+          - php
+
+  django:
+    build:
+      context: ./build/django
+      args:
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+        PYTHON_INSTALL_NMAP: ${PYTHON_INSTALL_NMAP}
+        PYTHON_INSTALL_GOOGLEAPI: ${PYTHON_INSTALL_GOOGLEAPI}
+        PYTHON_INSTALL_CHANNELS: ${PYTHON_INSTALL_CHANNELS}
+        PYTHON_INSTALL_ANSIBLE: ${PYTHON_INSTALL_ANSIBLE}
+        PYTHON_INSTALL_ELASTICSEARCH: ${PYTHON_INSTALL_ELASTICSEARCH}
+        PYTHON_INSTALL_PYTEST: ${PYTHON_INSTALL_PYTEST}
+        PYTHON_ISPRODUCTION: ${PYTHON_ISPRODUCTION}
+        PYTHON_INSTALL_TREEBEARD: ${PYTHON_INSTALL_TREEBEARD}
+        PYTHON_INSTALL_WKHTMLTOPDF: ${PYTHON_INSTALL_WKHTMLTOPDF}
+    #command: uwsgi --ini uwsgi.ini
+    #restart: always
+    ports: 
+      - "127.0.0.1:${DJANGO_PORT}:8000"
+      - "127.0.0.1:${DJANGO_STATS_PORT}:9191"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Database
+  ###########################################################################
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}-bionic
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    #restart: always
+    expose:
+      - "3306"
+    #ports:
+    #  - "${MARIADB_PORT}:3306"
+    volumes:
+      - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
+    networks:
+      backend:
+        aliases:
+          - mysql
+
+  mongo:
+    build:
+      context: ./build/mongo
+      args: 
+        SIRVERDOCK_MONGO_VERSION: ${MONGO_VERSION}
+    #restart: always
+    expose:
+      - "27017"
+    volumes:
+      - ./data/mongo:/data/db
+      - ./data/mongo_config:/data/configdb
+    environment:
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+    networks:
+      - backend
+
+  redis:
+    image: redis:6
+    command: redis-server /usr/local/etc/redis/redis.conf
+    #restart: always
+    expose: 
+      - "6379"
+    volumes:
+      - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis:/data"
+    networks: 
+      - backend
+
+  ###########################################################################
+  # Message Queue
+  ###########################################################################
+  queue-worker:
+    build:
+      context: ./build/php-fpm
+      args:
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+        SILVERDOCK_PHP_VERSION: ${PHP_VERSION}
+        PUID: ${PHP_PUID}
+        PGID: ${PHP_PGID}
+        PHP_INSTALL_GD: ${PHP_INSTALL_GD}
+        PHP_INSTALL_GMP: ${PHP_INSTALL_GMP}
+        PHP_INSTALL_MONGO: ${PHP_INSTALL_MONGO}
+        PHP_INSTALL_REDIS: ${PHP_INSTALL_REDIS}
+        PHP_INSTALL_OPENCC: ${PHP_INSTALL_OPENCC}
+    #restart: always
+    user: www-data
+    command: php /usr/share/nginx/${COMPOSE_PROJECT_NAME}/artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
+    depends_on:
+      - php-fpm
+    networks:
+      - backend
+
+  celery:
+    build: "./build/celery"
+    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    #restart: always
+    ports: 
+      - "18001:8000"
+    volumes: 
+      - "${PROJECT_PATH}:/data"
+    networks:
+      - backend
+
+  daphne:
+    build: "./build/daphne"
+    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    #restart: always
+    ports: 
+      - "18001:8000"
+    volumes: 
+      - "${PROJECT_PATH}:/data"
+    networks:
+      - backend
+
+networks: 
+  backend:
+    driver: bridge
+

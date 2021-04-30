@@ -36,6 +36,15 @@ ARG PYTHON_INSTALL_REDIS=false
 RUN if [ ${PYTHON_INSTALL_REDIS} = true ]; then \
         pip install \
             django-redis \
+        && apt install -yqq redis-tools \
+    ;fi
+
+# Install Celery
+ARG PYTHON_INSTALL_CELERY=false
+RUN if [ ${PYTHON_INSTALL_CELERY} = true ]; then \
+        pip install \
+            celery \
+            django-celery-results \
     ;fi
 
 # Install django-suit
@@ -127,7 +136,6 @@ COPY entrypoint.sh /usr/local/bin/entrypoint
 RUN apt install -yqq \
         mariadb-client \
         dos2unix \
-        redis-tools \
         openssh-server
 
 # Add sshd config

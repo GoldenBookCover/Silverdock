@@ -38,6 +38,14 @@ RUN if [ ${PYTHON_INSTALL_REDIS} = true ]; then \
             django-redis \
     ;fi
 
+# Install Celery
+ARG PYTHON_INSTALL_CELERY=false
+RUN if [ ${PYTHON_INSTALL_CELERY} = true ]; then \
+        pip install \
+            celery \
+            django-celery-results \
+    ;fi
+
 # Install django-suit
 ARG PYTHON_INSTALL_DJANGO_SUIT=false
 RUN if [ ${PYTHON_INSTALL_DJANGO_SUIT} = true ]; then \

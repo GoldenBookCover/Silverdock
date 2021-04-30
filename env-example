@@ -34,6 +34,26 @@ PHP_PGID=1000
 
 
 ###########################################################################
+# Python
+###########################################################################
+## python version
+PYTHON_VERSION="3.9"
+PYTHON_INSTALL_NMAP=false
+PYTHON_INSTALL_GOOGLEAPI=false
+PYTHON_INSTALL_CHANNELS=false
+PYTHON_INSTALL_ANSIBLE=false
+PYTHON_INSTALL_ELASTICSEARCH=false
+PYTHON_INSTALL_PYTEST=true
+PYTHON_IS_PRODUCTION=false
+PYTHON_INSTALL_TREEBEARD=false
+PYTHON_INSTALL_WKHTMLTOPDF=false
+PYTHON_INSTALL_CELERY=false
+DJANGO_PORT=18000
+DJANGO_STATS_PORT=19191
+
+
+
+###########################################################################
 # MariaDB & MySQL
 ###########################################################################
 ## MariaDB version

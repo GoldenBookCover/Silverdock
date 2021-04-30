@@ -24,6 +24,7 @@ services:
         SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
         PYTHON_INSTALL_NMAP: ${PYTHON_INSTALL_NMAP}
         PYTHON_INSTALL_GOOGLEAPI: ${PYTHON_INSTALL_GOOGLEAPI}
+        PYTHON_INSTALL_CELERY: ${PYTHON_INSTALL_CELERY}
         PYTHON_INSTALL_CHANNELS: ${PYTHON_INSTALL_CHANNELS}
         PYTHON_INSTALL_ANSIBLE: ${PYTHON_INSTALL_ANSIBLE}
         PYTHON_INSTALL_ELASTICSEARCH: ${PYTHON_INSTALL_ELASTICSEARCH}
@@ -74,10 +75,11 @@ services:
         PYTHON_INSTALL_NMAP: ${PYTHON_INSTALL_NMAP}
         PYTHON_INSTALL_GOOGLEAPI: ${PYTHON_INSTALL_GOOGLEAPI}
         PYTHON_INSTALL_CHANNELS: ${PYTHON_INSTALL_CHANNELS}
+        PYTHON_INSTALL_CELERY: ${PYTHON_INSTALL_CELERY}
         PYTHON_INSTALL_ANSIBLE: ${PYTHON_INSTALL_ANSIBLE}
         PYTHON_INSTALL_ELASTICSEARCH: ${PYTHON_INSTALL_ELASTICSEARCH}
         PYTHON_INSTALL_PYTEST: ${PYTHON_INSTALL_PYTEST}
-        PYTHON_ISPRODUCTION: ${PYTHON_ISPRODUCTION}
+        PYTHON_IS_PRODUCTION: ${PYTHON_IS_PRODUCTION}
         PYTHON_INSTALL_TREEBEARD: ${PYTHON_INSTALL_TREEBEARD}
         PYTHON_INSTALL_WKHTMLTOPDF: ${PYTHON_INSTALL_WKHTMLTOPDF}
     #command: uwsgi --ini uwsgi.ini
@@ -123,6 +125,7 @@ services:
     volumes:
       - ./data/mongo:/data/db
       - ./data/mongo_config:/data/configdb
+      #- /path/to/archive:/data/dump  # For backup
     environment:
       MONGO_INITDB_DATABASE: admin
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
@@ -169,28 +172,33 @@ services:
       - backend
 
   celery:
-    build: "./build/celery"
-    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    build:
+      context: ./build/celery
+      args:
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
+    command: celery -A core worker -l INFO
     #restart: always
-    ports: 
-      - "18001:8000"
     volumes: 
-      - "${PROJECT_PATH}:/data"
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
     networks:
       - backend
 
   daphne:
-    build: "./build/daphne"
+    build:
+      context: ./build/daphne
+      args:
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PROJECT_NAME: ${COMPOSE_PROJECT_NAME}
     command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
     #restart: always
     ports: 
-      - "18001:8000"
+      - "28002:8000"
     volumes: 
-      - "${PROJECT_PATH}:/data"
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
     networks:
       - backend
 
 networks: 
   backend:
     driver: bridge
-

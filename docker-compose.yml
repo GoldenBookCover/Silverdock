@@ -93,6 +93,32 @@ services:
       - backend
 
   ###########################################################################
+  # Nginx
+  ###########################################################################
+  nginx:
+    build:
+      context: ./build/nginx
+      args:
+        - PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}
+        - PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}
+        - DJANGO_UPSTREAM_CONTAINER=${NGINX_DJANGO_UPSTREAM_CONTAINER}
+        - DJANGO_UPSTREAM_PORT=${NGINX_DJANGO_UPSTREAM_PORT}
+        - http_proxy
+        - https_proxy
+        - no_proxy
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
+      - ${NGINX_HOST_LOG_PATH}:/var/log/nginx
+      - ${NGINX_SITES_PATH}:/etc/nginx/sites-available
+      - ${NGINX_SSL_PATH}:/etc/nginx/ssl
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+      - "${VARNISH_BACKEND_PORT}:81"
+    networks:
+      - backend
+
+  ###########################################################################
   # Database
   ###########################################################################
   mariadb:
@@ -103,10 +129,8 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     #restart: always
-    expose:
-      - "3306"
-    #ports:
-    #  - "${MARIADB_PORT}:3306"
+    ports:
+      - "127.0.0.1:${MARIADB_PORT}:3306"
     volumes:
       - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
     networks:

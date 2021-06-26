@@ -142,8 +142,8 @@ RUN apt install -yqq \
 COPY sshd_config /etc/ssh/sshd_config
 
 # Modify user and add ssh public key
-RUN groupadd -g ${PGID} silverdock \
-    && useradd -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
+RUN groupadd -o -g ${PGID} silverdock \
+    && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
     && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh
 
 # USER silverdock

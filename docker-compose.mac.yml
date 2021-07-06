@@ -21,6 +21,7 @@ services:
         PHP_INSTALL_MONGO: ${PHP_INSTALL_MONGO}
         PHP_INSTALL_REDIS: ${PHP_INSTALL_REDIS}
         PHP_INSTALL_OPENCC: ${PHP_INSTALL_OPENCC}
+        PHP_INSTALL_WPCLI: ${PHP_INSTALL_WPCLI}
         SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
         PYTHON_INSTALL_NMAP: ${PYTHON_INSTALL_NMAP}
         PYTHON_INSTALL_GOOGLEAPI: ${PYTHON_INSTALL_GOOGLEAPI}
@@ -34,10 +35,9 @@ services:
         PYTHON_INSTALL_WKHTMLTOPDF: ${PYTHON_INSTALL_WKHTMLTOPDF}
     #restart: always
     ports:
-     - "${WORKSPACE_SSH_PORT}:22"
+      - "${WORKSPACE_SSH_PORT}:22"
     volumes:
       - "${PROJECT_ROOT_PATH}:/usr/share/nginx/${COMPOSE_PROJECT_NAME}"
-      - "${SERVER_MOUNT_PATH}:/mnt/servers"
     networks:
       - backend
 
@@ -130,10 +130,10 @@ services:
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
     #restart: always
+    #volumes:
+    #  - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
     ports:
       - "127.0.0.1:${MARIADB_PORT}:3306"
-    volumes:
-      - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
     networks:
       backend:
         aliases:
@@ -166,7 +166,7 @@ services:
       - "6379"
     volumes:
       - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
-      - "./data/redis:/data"
+      #- "./data/redis:/data"
     networks: 
       - backend
 

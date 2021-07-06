@@ -10,6 +10,7 @@ PROJECT_ROOT_PATH=..
 COMPOSE_PROJECT_NAME=my_project
 
 SERVER_MOUNT_PATH='X:\\extra_mount_path'
+CHANGE_SOURCE=false
 
 
 ###########################################################################
@@ -27,6 +28,7 @@ PHP_INSTALL_GMP=true
 PHP_INSTALL_MONGO=false
 PHP_INSTALL_REDIS=true
 PHP_INSTALL_OPENCC=false
+PHP_INSTALL_WPCLI=true
 
 ### PHP process UID, used in php-fpm
 PHP_PUID=1000
@@ -55,10 +57,30 @@ DJANGO_STATS_PORT=19191
 
 
 ###########################################################################
+<<<<<<< HEAD
+=======
+# Nginx
+###########################################################################
+NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+NGINX_PHP_UPSTREAM_PORT=9000
+NGINX_DJANGO_UPSTREAM_CONTAINER=django
+NGINX_DJANGO_UPSTREAM_PORT=8000
+NGINX_HOST_LOG_PATH=./conf/nginx/log
+NGINX_SITES_PATH=./conf/nginx/conf.d
+NGINX_SSL_PATH=./conf/nginx/ssl
+NGINX_HOST_HTTP_PORT=80"
+NGINX_HOST_HTTPS_PORT=443"
+VARNISH_BACKEND_PORT=81"
+
+
+
+###########################################################################
+>>>>>>> ce5a93516227ea39d3be16143d8710bcbe95403c
 # MariaDB & MySQL
 ###########################################################################
 ## MariaDB version
 MARIADB_VERSION=10.4
+MARIADB_PORT=3306
 ## MariaDB credentials
 DB_ROOT_PASSWORD=mypassword
 DB_DATABASE=mydatabase
@@ -82,3 +104,4 @@ MONGO_ROOT_USERNAME=root
 ###########################################################################
 WORKSPACE_BASE="python"
 WORKSPACE_SSH_PORT="2222"
+

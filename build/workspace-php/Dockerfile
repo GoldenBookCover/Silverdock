@@ -23,6 +23,7 @@ RUN set -xe; \
         gnupg2 \
         libxml2-dev \
         libzip-dev \
+        libmcrypt-dev \
         lsb-release \
         unzip \
         vim \
@@ -33,9 +34,10 @@ RUN set -xe; \
         docker-php-ext-configure zip --with-libzip; \
     fi \
     && docker-php-ext-install zip pdo_mysql mysqli exif bcmath \
-    && php -m | grep -q 'zip'
+    && php -m | grep -q 'zip' \
+    && pecl install mcrypt
 # Install php modules
-RUN docker-php-ext-enable mysqli exif \
+RUN docker-php-ext-enable mysqli exif mcrypt \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 
 # Optional
@@ -135,9 +137,15 @@ RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         && apt -yqq install mongodb-org-shell; \
     fi
 
+ARG PHP_INSTALL_WPCLI=false
+RUN if [ ${PHP_INSTALL_WPCLI} = true ]; then \
+        curl -sL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar -o /usr/local/bin/wp \
+        && chmod 755 /usr/local/bin/wp; \
+    fi
+
 # Modify user and add ssh public key
-RUN groupadd -g ${PGID} silverdock \
-    && useradd -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
+RUN groupadd -o -g ${PGID} silverdock \
+    && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
     && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh
 
 # USER silverdock

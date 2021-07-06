@@ -23,6 +23,7 @@ RUN set -xe; \
         gnupg2 \
         libxml2-dev \
         libzip-dev \
+        libmcrypt-dev \
         lsb-release \
         unzip \
         vim \
@@ -33,9 +34,10 @@ RUN set -xe; \
         docker-php-ext-configure zip --with-libzip; \
     fi \
     && docker-php-ext-install zip pdo_mysql mysqli exif bcmath \
-    && php -m | grep -q 'zip'
+    && php -m | grep -q 'zip' \
+    && pecl install mcrypt
 # Install php modules
-RUN docker-php-ext-enable mysqli exif \
+RUN docker-php-ext-enable mysqli exif mcrypt \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 
 # Optional

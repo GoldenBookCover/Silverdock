@@ -1,0 +1,29 @@
+Django
+daphne
+Pillow
+django-crispy-forms
+django-ckeditor
+
+# # Google api client: app_checkmail
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# # Google api client: app_sheet
+gspread
+oauth2client
+# django-elasticsearch-dsl
+# django-redis
+# django-markdownx
+# channels
+# channels-redis
+# #django-suit==2.0a1
+# https://github.com/darklow/django-suit/tarball/v2
+# django-treebeard
+# django-wkhtmltopdf
+# # Google api auth
+
+# # For production
+# uwsgi
+# psycopg2
+mysqlclient

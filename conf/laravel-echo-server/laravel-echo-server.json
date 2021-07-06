@@ -1,0 +1,20 @@
+{
+    "authHost": "https://acs.181920.xyz",
+    "authEndpoint": "/broadcasting/auth",
+    "clients": [],
+    "database": "redis",
+    "databaseConfig": {
+        "redis": {
+            "port": "6379",
+            "host": "redis",
+            "password": "webTxC#SDXxtrGv.TarU7EnOa4SGv_2"
+        }
+    },
+    "devMode": true,
+    "host": null,
+    "port": "6001",
+    "protocol": "http",
+    "socketio": {},
+    "sslCertPath": "",
+    "sslKeyPath": ""
+}

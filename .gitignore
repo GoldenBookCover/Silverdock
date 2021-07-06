@@ -130,5 +130,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Others
+docker-compose-local.yml
 silverdock.pem.pub
 /conf/redis/redis.conf
+

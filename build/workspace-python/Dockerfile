@@ -9,8 +9,6 @@ ENV PYTHONUNBUFFERED 1
 # Update all packages
 RUN apt update \
     && apt -yqq install \
-        sshpass \
-        libpcap-dev \
         vim \
     && pip install \
         django-debug-toolbar \
@@ -19,7 +17,8 @@ RUN apt update \
         django-crispy-forms \
         django-ckeditor \
         django-markdownx \
-        Django
+        Django \
+    ;
 
 # Install Google API client
 ARG PYTHON_INSTALL_GOOGLEAPI=false
@@ -36,6 +35,16 @@ ARG PYTHON_INSTALL_REDIS=false
 RUN if [ ${PYTHON_INSTALL_REDIS} = true ]; then \
         pip install \
             django-redis \
+        && apt install -yqq \
+            redis-tools \
+    ;fi
+
+# Install Celery
+ARG PYTHON_INSTALL_CELERY=false
+RUN if [ ${PYTHON_INSTALL_CELERY} = true ]; then \
+        pip install \
+            celery \
+            django-celery-results \
     ;fi
 
 # Install django-suit
@@ -86,7 +95,10 @@ RUN if [ ${PYTHON_INSTALL_NMAP} = true ]; then \
 # Install ansible
 ARG PYTHON_INSTALL_ANSIBLE=false
 RUN if [ ${PYTHON_INSTALL_ANSIBLE} = true ]; then \
-        pip install \
+        apt -yqq install \
+            sshpass \
+            libpcap-dev \
+        && pip install \
             ansible \
             ansible-runner \
     ;fi
@@ -127,15 +139,14 @@ COPY entrypoint.sh /usr/local/bin/entrypoint
 RUN apt install -yqq \
         mariadb-client \
         dos2unix \
-        redis-tools \
         openssh-server
 
 # Add sshd config
 COPY sshd_config /etc/ssh/sshd_config
 
 # Modify user and add ssh public key
-RUN groupadd -g ${PGID} silverdock \
-    && useradd -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
+RUN groupadd -o -g ${PGID} silverdock \
+    && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
     && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh
 
 # USER silverdock

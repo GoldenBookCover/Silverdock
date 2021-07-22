@@ -79,7 +79,9 @@ RUN if [ ${PYTHON_IS_PRODUCTION} = true ]; then \
 # Install nmap & extension
 ARG PYTHON_INSTALL_NMAP=false
 RUN if [ ${PYTHON_INSTALL_NMAP} = true ]; then \
-        curl -LO https://nmap.org/dist/nmap-7.80.tgz \
+        apt -yqq install \
+            libpcap-dev \
+        && curl -LO https://nmap.org/dist/nmap-7.80.tgz \
         && tar -zxf nmap-7.80.tgz \
         && cd nmap-7.80 \
         && ./configure \
@@ -95,7 +97,6 @@ ARG PYTHON_INSTALL_ANSIBLE=false
 RUN if [ ${PYTHON_INSTALL_ANSIBLE} = true ]; then \
         apt -yqq install \
             sshpass \
-            libpcap-dev \
         && pip install \
             ansible \
             ansible-runner \

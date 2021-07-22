@@ -28,6 +28,9 @@ RUN set -xe; \
         unzip \
         vim \
         zip \
+        sudo \
+        man-db \
+        bash-completion \
     && if [ ${SILVERDOCK_PHP_VERSION} = "7.3" ] || [ ${SILVERDOCK_PHP_VERSION} = "7.4" ] || [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
         docker-php-ext-configure zip; \
     else \

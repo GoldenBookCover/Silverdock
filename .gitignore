@@ -132,7 +132,7 @@ dmypy.json
 .pyre/
 
 # Others
-docker-compose-local.yml
+docker-compose.local.yml
 silverdock.pem.pub
 /conf/redis/redis.conf
 

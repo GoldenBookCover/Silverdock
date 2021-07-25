@@ -41,24 +41,23 @@ PHP_PGID=1000
 ###########################################################################
 ## python version
 PYTHON_VERSION="3.9"
-PYTHON_INSTALL_NMAP=false
-PYTHON_INSTALL_GOOGLEAPI=false
-PYTHON_INSTALL_CHANNELS=false
 PYTHON_INSTALL_ANSIBLE=false
+PYTHON_INSTALL_CELERY=false
+PYTHON_INSTALL_CHANNELS=false
 PYTHON_INSTALL_ELASTICSEARCH=false
+PYTHON_INSTALL_GOOGLEAPI=false
+PYTHON_INSTALL_NMAP=false
 PYTHON_INSTALL_PYTEST=true
-PYTHON_IS_PRODUCTION=false
+PYTHON_INSTALL_REDIS=true
 PYTHON_INSTALL_TREEBEARD=false
 PYTHON_INSTALL_WKHTMLTOPDF=false
-PYTHON_INSTALL_CELERY=false
+PYTHON_IS_PRODUCTION=false
 DJANGO_PORT=18000
 DJANGO_STATS_PORT=19191
 
 
 
 ###########################################################################
-<<<<<<< HEAD
-=======
 # Nginx
 ###########################################################################
 NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
@@ -74,8 +73,6 @@ VARNISH_BACKEND_PORT=81"
 
 
 
-###########################################################################
->>>>>>> ce5a93516227ea39d3be16143d8710bcbe95403c
 # MariaDB & MySQL
 ###########################################################################
 ## MariaDB version

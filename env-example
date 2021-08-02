@@ -67,12 +67,21 @@ NGINX_DJANGO_UPSTREAM_PORT=8000
 NGINX_HOST_LOG_PATH=./conf/nginx/log
 NGINX_SITES_PATH=./conf/nginx/conf.d
 NGINX_SSL_PATH=./conf/nginx/ssl
-NGINX_HOST_HTTP_PORT=80"
-NGINX_HOST_HTTPS_PORT=443"
-VARNISH_BACKEND_PORT=81"
+NGINX_HOST_HTTP_PORT=80
+NGINX_HOST_HTTPS_PORT=443
+VARNISH_BACKEND_PORT=81
 
 
 
+###########################################################################
+# NodeJS
+###########################################################################
+INSTALL_NODEJS=true
+NODEJS_VERSION="14"
+
+
+
+###########################################################################
 # MariaDB & MySQL
 ###########################################################################
 ## MariaDB version

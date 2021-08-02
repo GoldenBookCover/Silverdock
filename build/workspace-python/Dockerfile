@@ -130,6 +130,16 @@ RUN if [ ${PYTHON_INSTALL_CHANNELS} = true ]; then \
             channels-redis \
     ;fi
 
+ARG INSTALL_NODEJS=false
+ARG NODEJS_VERSION=14
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+        curl -sL https://deb.nodesource.com/setup_${INSTALL_NODEJS}.x -o setup.sh \
+        && bash setup.sh \
+        && apt update \
+        && apt install nodejs \
+        && npm install yarn -g \
+    ;fi
+
 ARG PROJECT_NAME=html
 ARG PUID=1000
 ENV PUID ${PUID}

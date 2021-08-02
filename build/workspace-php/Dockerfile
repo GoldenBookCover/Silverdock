@@ -146,6 +146,16 @@ RUN if [ ${PHP_INSTALL_WPCLI} = true ]; then \
         && chmod 755 /usr/local/bin/wp; \
     fi
 
+ARG INSTALL_NODEJS=false
+ARG NODEJS_VERSION=14
+RUN if [ ${INSTALL_NODEJS} = true ]; then \
+        curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x -o /tmp/setup.sh \
+        && bash /tmp/setup.sh \
+        && apt update \
+        && apt -yqq install nodejs \
+        && npm install yarn -g \
+    ;fi
+
 # Modify user and add ssh public key
 RUN groupadd -o -g ${PGID} silverdock \
     && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \

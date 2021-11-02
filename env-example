@@ -88,6 +88,7 @@ NODEJS_VERSION="14"
 MARIADB_VERSION=10.4
 MARIADB_PORT=3306
 ## MariaDB credentials
+#DB_DOCKER="mail_server_mariadb_1"
 DB_ROOT_PASSWORD=mypassword
 DB_DATABASE=mydatabase
 DB_USERNAME=myadmin
@@ -110,4 +111,19 @@ MONGO_ROOT_USERNAME=root
 ###########################################################################
 WORKSPACE_BASE="python"
 WORKSPACE_SSH_PORT="2222"
+
+
+
+###########################################################################
+# Mail server
+###########################################################################
+PUBLIC_IP="172.16.12.1"
+MAIL_DOMAIN="mail.example.com"
+MAIL_TOP_DOMAIN="example.tk"
+FQDN="$MAIL_DOMAIN"
+ENABLE_SPAMASSASSIN="true"
+ENABLE_OPENDKIM="true"
+ENABLE_SIEVE="true"
+GENERATE_OPENDKIM_KEY="true"
+SSL_PATH="/etc/letsencrypt"
 

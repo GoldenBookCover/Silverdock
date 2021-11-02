@@ -1,0 +1,4 @@
+driver = mysql
+connect = host=127.0.0.1 dbname=mail_demo user=mail_demo password=mail_password
+default_pass_scheme = SHA512-CRYPT
+password_query = SELECT email as user, password FROM users WHERE email='%u';

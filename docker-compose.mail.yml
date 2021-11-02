@@ -1,0 +1,89 @@
+---
+
+# All services:
+# workspace php-fpm mariadb mongo redis queue-worker django celery daphne
+
+version: '3'
+services:
+  ###########################################################################
+  # Database
+  ###########################################################################
+  mariadb:
+    image: mariadb:${MARIADB_VERSION}-bionic
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    #restart: always
+    ports:
+      - "127.0.0.1:${MARIADB_PORT}:3306"
+    volumes:
+      - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
+    networks:
+      backend:
+        aliases:
+          - mysql
+
+  ###########################################################################
+  # Mail server
+  ###########################################################################
+  mail-server:
+    build:
+      context: ./build/mail-server
+      args:
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PUBLIC_IP: ${PUBLIC_IP}
+        MAIL_DOMAIN: ${MAIL_DOMAIN}
+        MAIL_TOP_DOMAIN: ${MAIL_TOP_DOMAIN}
+        FQDN: ${FQDN}
+        ENABLE_SPAMASSASSIN: ${ENABLE_SPAMASSASSIN}
+        ENABLE_OPENDKIM: ${ENABLE_OPENDKIM}
+        ENABLE_SIEVE: ${ENABLE_SIEVE}
+        GENERATE_OPENDKIM_KEY: ${GENERATE_OPENDKIM_KEY}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_HOST: ${DB_HOST}
+    #restart: always
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
+      - "143:143"
+      - "110:110"
+      - "995:995"
+    volumes:
+      - "${SSL_PATH}:/etc/letsencrypt"
+      - "./data/mail_data:/var/mail/vhosts"
+    networks:
+      - backend
+
+  mail-worker:
+    build:
+      context: ./build/mail-worker
+      args:
+        SILVERDOCK_PYTHON_VERSION: ${PYTHON_VERSION}
+        PUBLIC_IP: ${PUBLIC_IP}
+        MAIL_DOMAIN: ${MAIL_DOMAIN}
+        MAIL_TOP_DOMAIN: ${MAIL_TOP_DOMAIN}
+        FQDN: ${FQDN}
+        DB_DATABASE: ${DB_DATABASE}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+        DB_HOST: ${DB_HOST}
+    tty: true
+    #restart: always
+    ports:
+      - "127.0.0.1:${DJANGO_PORT}:8000"
+    volumes:
+      - "${SSL_PATH}:/etc/letsencrypt"
+      - "./data/mail_data:/var/mail/vhosts"
+    networks:
+      - backend
+
+
+networks: 
+  backend:
+    driver: bridge

@@ -6,7 +6,8 @@
     "databaseConfig": {
         "redis": {
             "port": "6379",
-            "host": "redis"
+            "host": "redis",
+			"password": "foobared"
         }
     },
     "devMode": true,

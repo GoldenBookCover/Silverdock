@@ -11,4 +11,4 @@ fi
 crond -l 2 -b
 
 # Start nginx in foreground
-nginx
+exec nginx

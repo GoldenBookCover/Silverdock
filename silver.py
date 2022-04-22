@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# errorcode 3: Run docker command inside docker container
+# This script provides quick access to some docker actions
 
 import argparse
 import os

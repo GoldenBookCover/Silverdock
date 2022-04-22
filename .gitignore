@@ -133,6 +133,3 @@ dmypy.json
 
 # Others
 docker-compose.local.yml
-silverdock.pem.pub
-/conf/redis/redis.conf
-

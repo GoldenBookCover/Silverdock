@@ -5,6 +5,8 @@ A Docker environment for web development.
 ### Apps
 
 - upgrade django version
+- add more compose files
+
 ### Docs
 
 - mariadb: add replication, certs file, id, databases

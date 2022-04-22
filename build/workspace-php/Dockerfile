@@ -3,8 +3,6 @@ ARG SILVERDOCK_PHP_VERSION
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-buster
 
-LABEL maintainer="Monstre Charmant <https://github.com/MonstreCharmant>"
-
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -13,6 +11,9 @@ ARG SILVERDOCK_PHP_VERSION
 # Mandatory
 RUN set -xe; \
     apt update -yqq \
+    && apt-get install -y locales \
+&& sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
+    && locale-gen \
     && pecl channel-update pecl.php.net \
     && apt install -yqq \
         apt-utils \
@@ -23,7 +24,6 @@ RUN set -xe; \
         gnupg2 \
         libxml2-dev \
         libzip-dev \
-        libmcrypt-dev \
         lsb-release \
         unzip \
         vim \
@@ -37,11 +37,14 @@ RUN set -xe; \
         docker-php-ext-configure zip --with-libzip; \
     fi \
     && docker-php-ext-install zip pdo_mysql mysqli exif bcmath \
-    && php -m | grep -q 'zip' \
-    && pecl install mcrypt
+    && php -m | grep -q '^zip$'
 # Install php modules
-RUN docker-php-ext-enable mysqli exif mcrypt \
+RUN docker-php-ext-enable mysqli exif \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
+
+ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
 
 # Optional
 # Install gi
@@ -82,16 +85,15 @@ RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt install -yqq libcurl4-openssl-dev libssl-dev \
         && pecl install mongodb \
         && docker-php-ext-enable mongodb; \
+        php -m | grep -oiE '^mongodb$'; \
     fi
 
 # Install redis extension
 ARG PHP_INSTALL_REDIS=false
 RUN if [ ${PHP_INSTALL_REDIS} = true ]; then \
-        mkdir -p /usr/src/php/ext/redis \
-        && curl -L https://github.com/phpredis/phpredis/archive/5.3.2.tar.gz \
-            | tar -zxv -C /usr/src/php/ext/redis --strip 1 \
-        && echo "redis" | tee -a /usr/src/php-available-exts \
-        && docker-php-ext-install redis; \
+        pecl install -o -f redis \
+        && rm -rf /tmp/pear \
+        && docker-php-ext-enable redis; \
     fi
 
 # Install opencc extension
@@ -102,6 +104,43 @@ RUN if [ ${PHP_INSTALL_OPENCC} = true ]; then \
         && git clone https://github.com/nauxliu/opencc4php.git /usr/src/php/ext/opencc4php \
         && echo "opencc4php" | tee -a /usr/src/php-available-exts \
         && docker-php-ext-install opencc4php; \
+    fi
+
+ARG PHP_INSTALL_PCNTL=false
+RUN if [ ${PHP_INSTALL_PCNTL} = true ]; then \
+    # Installs pcntl, helpful for running Horizon
+    docker-php-ext-install pcntl \
+;fi
+
+ARG PHP_INSTALL_GRPC=false
+RUN if [ ${PHP_INSTALL_GRPC} = true ]; then \
+    # Install the grpc extension
+    pecl install grpc && \
+    docker-php-ext-enable grpc \
+;fi
+
+ARG PHP_INSTALL_PROTOBUF=false
+RUN if [ ${PHP_INSTALL_PROTOBUF} = true ]; then \
+    # Install the grpc extension
+    pecl install protobuf-3.19.4 && \
+    docker-php-ext-enable protobuf \
+;fi
+
+ARG PHP_INSTALL_SWOOLE=false
+RUN set -eux; \
+    if [ ${PHP_INSTALL_SWOOLE} = true ]; then \
+      # Install Php Swoole Extension
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        echo '' | pecl -q install swoole-2.0.10; \
+      elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "0" ]; then \
+        echo '' | pecl -q install swoole-4.3.5; \
+      elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "1" ]; then \
+        echo '' | pecl -q install swoole-4.5.11; \
+      else \
+        echo '' | pecl -q install swoole; \
+      fi; \
+      docker-php-ext-enable swoole; \
+      php -m | grep -q '^swoole$'; \
     fi
 
 # Install composer
@@ -147,7 +186,7 @@ RUN if [ ${PHP_INSTALL_WPCLI} = true ]; then \
     fi
 
 ARG INSTALL_NODEJS=false
-ARG NODEJS_VERSION=14
+ARG NODEJS_VERSION=16
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
         curl -sL https://deb.nodesource.com/setup_${NODEJS_VERSION}.x -o /tmp/setup.sh \
         && bash /tmp/setup.sh \
@@ -157,18 +196,18 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
     ;fi
 
 # Modify user and add ssh public key
-RUN groupadd -o -g ${PGID} silverdock \
+ARG WORKSPACE_SSH_PUBKEY
+RUN touch /usr/local/etc/php/conf.d/silver.ini \
+    && groupadd -o -g ${PGID} silverdock \
     && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
-    && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh
-
-# USER silverdock
-COPY silverdock.pem.pub /home/silverdock/.ssh/authorized_keys
-
-RUN chmod 600 /home/silverdock/.ssh/authorized_keys \
+    && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh \
+    && echo "$WORKSPACE_SSH_PUBKEY" > /home/silverdock/.ssh/authorized_keys \
+    && chmod 600 /home/silverdock/.ssh/authorized_keys \
     && chown silverdock:silverdock /home/silverdock/.ssh/authorized_keys \
     && chmod 755 /usr/local/bin/entrypoint \
-    && mkdir -p /usr/share/nginx/${PROJECT_NAME}
+    && mkdir -p /var/www
 
-WORKDIR /usr/share/nginx/${PROJECT_NAME}
-CMD [ "/usr/local/bin/entrypoint" ]
+WORKDIR /var/www
+ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
+
 EXPOSE 22

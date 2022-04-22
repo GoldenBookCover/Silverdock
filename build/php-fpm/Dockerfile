@@ -3,8 +3,6 @@ ARG SILVERDOCK_PHP_VERSION
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-buster
 
-LABEL maintainer="Monstre Charmant <https://github.com/MonstreCharmant>"
-
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -23,7 +21,6 @@ RUN set -xe; \
         gnupg2 \
         libxml2-dev \
         libzip-dev \
-        libmcrypt-dev \
         lsb-release \
         unzip \
         vim \
@@ -34,10 +31,9 @@ RUN set -xe; \
         docker-php-ext-configure zip --with-libzip; \
     fi \
     && docker-php-ext-install zip pdo_mysql mysqli exif bcmath \
-    && php -m | grep -q 'zip' \
-    && pecl install mcrypt
+    && php -m | grep -q '^zip$'
 # Install php modules
-RUN docker-php-ext-enable mysqli exif mcrypt \
+RUN docker-php-ext-enable mysqli exif \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 
 # Optional
@@ -79,16 +75,15 @@ RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt install -yqq libcurl4-openssl-dev libssl-dev \
         && pecl install mongodb \
         && docker-php-ext-enable mongodb; \
+        php -m | grep -oiE '^mongodb$'; \
     fi
 
 # Install redis extension
 ARG PHP_INSTALL_REDIS=false
 RUN if [ ${PHP_INSTALL_REDIS} = true ]; then \
-        mkdir -p /usr/src/php/ext/redis \
-        && curl -L https://github.com/phpredis/phpredis/archive/5.3.2.tar.gz \
-            | tar -zxv -C /usr/src/php/ext/redis --strip 1 \
-        && echo "redis" | tee -a /usr/src/php-available-exts \
-        && docker-php-ext-install redis; \
+        pecl install -o -f redis \
+        && rm -rf /tmp/pear \
+        && docker-php-ext-enable redis; \
     fi
 
 # Install opencc extension
@@ -101,31 +96,67 @@ RUN if [ ${PHP_INSTALL_OPENCC} = true ]; then \
         && docker-php-ext-install opencc4php; \
     fi
 
-# Install composer
-RUN curl -sS https://getcomposer.org/installer | php \
-    && install -m 755 composer.phar /usr/bin/composer \
-    && rm -f composer.phar
+ARG PHP_INSTALL_PCNTL=false
+RUN if [ ${PHP_INSTALL_PCNTL} = true ]; then \
+    # Installs pcntl, helpful for running Horizon
+    docker-php-ext-install pcntl \
+;fi
 
-ARG PROJECT_NAME=html
+ARG PHP_INSTALL_GRPC=false
+RUN if [ ${INSTALL_GRPC} = true ]; then \
+    # Install the grpc extension
+    pecl install grpc && \
+    docker-php-ext-enable grpc \
+;fi
+
+ARG PHP_INSTALL_PROTOBUF=false
+RUN if [ ${PHP_INSTALL_PROTOBUF} = true ]; then \
+    # Install the grpc extension
+    pecl install protobuf-3.19.4 && \
+    docker-php-ext-enable protobuf \
+;fi
+
+ARG PHP_INSTALL_SWOOLE=false
+RUN set -eux; \
+    if [ ${PHP_INSTALL_SWOOLE} = true ]; then \
+      # Install Php Swoole Extension
+      if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
+        echo '' | pecl -q install swoole-2.0.10; \
+      elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "0" ]; then \
+        echo '' | pecl -q install swoole-4.3.5; \
+      elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "1" ]; then \
+        echo '' | pecl -q install swoole-4.5.11; \
+      else \
+        echo '' | pecl -q install swoole; \
+      fi; \
+      docker-php-ext-enable swoole; \
+      php -m | grep -q '^swoole$'; \
+    fi
+
 ARG PUID=1000
-ENV PUID ${PUID}
+ENV PUID=${PUID}
 ARG PGID=1000
-ENV PGID ${PGID}
+ENV PGID=${PGID}
+ARG ENABLE_CRONJOB=false
+ENV ENABLE_CRONJOB=${ENABLE_CRONJOB}
+
 
 # Import entrypoint script to control startup
 COPY entrypoint.sh /usr/local/bin/entrypoint
 
 # Modify user
-# "#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /usr/share/nginx/${PROJECT_NAME}/artisan schedule:run &> /dev/null"
-RUN chmod 755 /usr/local/bin/entrypoint \
+RUN apt update \
+    && apt install gosu -yqq \
+    && chmod 755 /usr/local/bin/entrypoint \
+    && touch /usr/local/etc/php/conf.d/silver.ini \
     && groupmod -o -g ${PGID} www-data \
     && usermod -o -u ${PUID} -g www-data www-data \
-    && chown www-data:www-data /var/www \
-    && chmod 755 /usr/local/bin/entrypoint \
-    && echo "#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /usr/share/nginx/${PROJECT_NAME}/artisan schedule:run &> /tmp/test.log" | tee -a /etc/crontab \
-    && mkdir -p /usr/share/nginx/${PROJECT_NAME}
-# USER www-data
-WORKDIR /usr/share/nginx/${PROJECT_NAME}
-CMD [ "/usr/local/bin/entrypoint" ]
+    && echo "#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /var/www/artisan schedule:run > /dev/null 2>&1\n" >> /etc/crontab \
+    && mkdir -p /var/www
+
+WORKDIR /var/www
+ENTRYPOINT [ "/usr/local/bin/entrypoint" ]
+CMD [ "php-fpm" ]
 
 EXPOSE 9000
+EXPOSE 8000

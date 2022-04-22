@@ -131,7 +131,7 @@ RUN if [ ${PYTHON_INSTALL_CHANNELS} = true ]; then \
     ;fi
 
 ARG INSTALL_NODEJS=false
-ARG NODEJS_VERSION=14
+ARG NODEJS_VERSION=16
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
         curl -sL https://deb.nodesource.com/setup_${INSTALL_NODEJS}.x -o setup.sh \
         && bash setup.sh \
@@ -140,37 +140,29 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
         && npm install yarn -g \
     ;fi
 
-ARG PROJECT_NAME=html
-ARG PUID=1000
-ENV PUID ${PUID}
-ARG PGID=1000
-ENV PGID ${PGID}
-
-# Import entrypoint script to control startup
-COPY entrypoint.sh /usr/local/bin/entrypoint
-
 # Different from php-fpm from here
 RUN apt install -yqq \
         mariadb-client \
         dos2unix \
         openssh-server
 
-# Add sshd config
+COPY entrypoint.sh /usr/local/bin/entrypoint
 COPY sshd_config /etc/ssh/sshd_config
 
+ARG PUID=1000
+ENV PUID ${PUID}
+ARG PGID=1000
+ENV PGID ${PGID}
+ARG WORKSPACE_SSH_PUBKEY
 # Modify user and add ssh public key
 RUN groupadd -o -g ${PGID} silverdock \
     && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
-    && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh
-
-# USER silverdock
-COPY silverdock.pem.pub /home/silverdock/.ssh/authorized_keys
-
-RUN chmod 600 /home/silverdock/.ssh/authorized_keys \
+    && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh \
+    && echo "$WORKSPACE_SSH_PUBKEY" > /home/silverdock/.ssh/authorized_keys \
+    && chmod 600 /home/silverdock/.ssh/authorized_keys \
     && chown silverdock:silverdock /home/silverdock/.ssh/authorized_keys \
-    && chmod 755 /usr/local/bin/entrypoint \
-    && mkdir -p /usr/share/nginx/${PROJECT_NAME}
+    && chmod 755 /usr/local/bin/entrypoint
 
-WORKDIR /usr/share/nginx/${PROJECT_NAME}
+WORKDIR /var/www
 CMD [ "/usr/local/bin/entrypoint" ]
 EXPOSE 22

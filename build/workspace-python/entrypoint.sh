@@ -2,4 +2,4 @@
 
 # Create runtime context directory
 mkdir -p /run/sshd
-/usr/sbin/sshd -D
+exec /usr/sbin/sshd -D

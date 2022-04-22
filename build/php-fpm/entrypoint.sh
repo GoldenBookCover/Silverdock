@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Start cronjob service(daemon)
-service cron start
+if [ "x${ENABLE_CRONJOB}" = "xtrue" ]; then
+    service cron start
+fi
 
-# Run php-fpm in interactive mode
-php-fpm
+# Run your app in interactive mode
+exec $@

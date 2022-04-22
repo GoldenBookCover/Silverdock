@@ -9,7 +9,11 @@ PROJECT_ROOT_PATH=..
 ## nginx.conf
 COMPOSE_PROJECT_NAME=my_project
 
-SERVER_MOUNT_PATH='X:\\extra_mount_path'
+COMPOSE_FILE=docker-compose.yml
+
+DATA_PATH_HOST=./data
+
+SERVER_MOUNT_PATH='./dummy_data'
 CHANGE_SOURCE=false
 
 
@@ -28,7 +32,14 @@ PHP_INSTALL_GMP=true
 PHP_INSTALL_MONGO=false
 PHP_INSTALL_REDIS=true
 PHP_INSTALL_OPENCC=false
-PHP_INSTALL_WPCLI=true
+PHP_INSTALL_PCNTL=true
+PHP_INSTALL_WPCLI=false
+PHP_INSTALL_GRPC=true
+PHP_INSTALL_PROTOBUF=true
+PHP_INSTALL_SWOOLE=true
+
+# Enable cron service in php-fpm
+PHP_ENABLE_CRONJOB=true
 
 ### PHP process UID, used in php-fpm
 PHP_PUID=1000
@@ -40,7 +51,7 @@ PHP_PGID=1000
 # Python
 ###########################################################################
 ## python version
-PYTHON_VERSION="3.9"
+PYTHON_VERSION="3.10"
 PYTHON_INSTALL_ANSIBLE=false
 PYTHON_INSTALL_CELERY=false
 PYTHON_INSTALL_CHANNELS=false
@@ -77,22 +88,26 @@ VARNISH_BACKEND_PORT=81
 # NodeJS
 ###########################################################################
 INSTALL_NODEJS=true
-NODEJS_VERSION="14"
+NODEJS_VERSION="16"
 
 
 
 ###########################################################################
 # MariaDB & MySQL
 ###########################################################################
-## MariaDB version
 MARIADB_VERSION=10.4
 MARIADB_PORT=3306
-## MariaDB credentials
-#DB_DOCKER="mail_server_mariadb_1"
-DB_ROOT_PASSWORD=mypassword
-DB_DATABASE=mydatabase
-DB_USERNAME=myadmin
-DB_PASSWORD=mypass
+MARIADB_DATABASE=mydb
+MARIADB_USER=myadmin
+MARIADB_PASSWORD=mypass
+MARIADB_PORT=3306
+MARIADB_ROOT_PASSWORD=toor
+MARIADB_ENTRYPOINT_INITDB=./mariadb/docker-entrypoint-initdb.d
+
+# <empty> | master | slave
+MARIADB_REPLICA_STATE=""
+MARIADB_REPLICA_ID=""
+MARIADB_REPLICA_DATABASES="mydb"
 
 
 
@@ -101,16 +116,25 @@ DB_PASSWORD=mypass
 ###########################################################################
 ## MongoDB version
 MONGO_VERSION="4.4"
+MONGODB_PORT=27017
 MONGO_ROOT_PASSWORD=mypassword
 MONGO_ROOT_USERNAME=root
 
+# Communication encryption in replication
+MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
 
 
 ###########################################################################
 # Workspace
 ###########################################################################
 WORKSPACE_BASE="python"
+WORKSPACE_TIMEZONE=UTC
 WORKSPACE_SSH_PORT="2222"
+WORKSPACE_SSH_PUBKEY=""
+
+
+
+LARAVEL_ECHO_SERVER_PORT=6001
 
 
 

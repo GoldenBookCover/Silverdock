@@ -80,6 +80,7 @@ RUN if [ ${PHP_INSTALL_GMP} = true ]; then \
     fi
 
 # Install mongo extension
+ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG PHP_INSTALL_MONGO=false
 RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt install -yqq libcurl4-openssl-dev libssl-dev \

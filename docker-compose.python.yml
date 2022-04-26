@@ -52,36 +52,6 @@ services:
   ###########################################################################
   # Backend
   ###########################################################################
-  php-fpm:
-    build:
-      context: ./build/php-fpm
-      args:
-        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
-        - "ENABLE_CRONJOB=${PHP_ENABLE_CRONJOB}"
-        - "PUID=${PHP_PUID}"
-        - "PGID=${PHP_PGID}"
-        - "PHP_INSTALL_GD=${PHP_INSTALL_GD}"
-        - "PHP_INSTALL_GMP=${PHP_INSTALL_GMP}"
-        - "PHP_INSTALL_MONGO=${PHP_INSTALL_MONGO}"
-        - "PHP_INSTALL_REDIS=${PHP_INSTALL_REDIS}"
-        - "PHP_INSTALL_OPENCC=${PHP_INSTALL_OPENCC}"
-        - "PHP_INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
-        - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
-        - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
-        - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
-    #restart: always
-    # Uncomment this to enable octane server
-    #command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000
-    ports:
-      - "${PHP_FPM_LISTEN_PORT}:9000"
-    volumes:
-      - "${PROJECT_ROOT_PATH}:/var/www"
-      - "./conf/php/fpm.ini:/usr/local/etc/php/conf.d/silver.ini"
-    networks:
-      backend:
-        aliases:
-          - php
-
   django:
     build:
       context: ./build/django
@@ -201,35 +171,6 @@ services:
   ###########################################################################
   # Message Queue
   ###########################################################################
-  queue-worker:
-    build:
-      context: ./build/php-fpm
-      args:
-        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
-        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
-        - "PUID=${PHP_PUID}"
-        - "PGID=${PHP_PGID}"
-        - "PHP_INSTALL_GD=${PHP_INSTALL_GD}"
-        - "PHP_INSTALL_GMP=${PHP_INSTALL_GMP}"
-        - "PHP_INSTALL_MONGO=${PHP_INSTALL_MONGO}"
-        - "PHP_INSTALL_REDIS=${PHP_INSTALL_REDIS}"
-        - "PHP_INSTALL_OPENCC=${PHP_INSTALL_OPENCC}"
-        - "PHP_INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
-        - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
-        - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
-        - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
-    #restart: always
-    user: www-data
-    entrypoint: ""
-    command: php /var/www/artisan queue:work --sleep=3 --tries=3
-    volumes:
-      - "${PROJECT_ROOT_PATH}:/var/www"
-      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
-    depends_on:
-      - php-fpm
-    networks:
-      - backend
-
   celery:
     build:
       context: ./build/celery
@@ -244,18 +185,6 @@ services:
       - backend
 
   ### Laravel Echo Server #######################################
-  laravel-echo-server:
-    build:
-      context: ./build/laravel-echo-server
-    volumes:
-      - ./laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro
-    ports:
-      - "${LARAVEL_ECHO_SERVER_PORT}:6001"
-    depends_on:
-      - redis
-    networks:
-      - backend
-
   daphne:
     build:
       context: ./build/daphne

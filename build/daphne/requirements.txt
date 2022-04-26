@@ -10,11 +10,11 @@ google-auth-httplib2
 google-auth-oauthlib
 
 # # Google api client: app_sheet
-gspread
-oauth2client
+# gspread
+# oauth2client
 # django-elasticsearch-dsl
 # django-redis
-# django-markdownx
+# django-markdownx==4.0.0b1
 # channels
 # channels-redis
 # #django-suit==2.0a1

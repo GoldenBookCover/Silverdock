@@ -16,7 +16,7 @@ RUN apt update \
         Pillow \
         django-crispy-forms \
         django-ckeditor \
-        django-markdownx \
+        django-markdownx==4.0.0b1 \
         Django \
     ;
 

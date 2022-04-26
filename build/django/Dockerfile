@@ -16,7 +16,7 @@ RUN apt update \
         Pillow \
         django-crispy-forms \
         django-ckeditor \
-        django-markdownx \
+        django-markdownx==4.0.0b1 \
         Django \
     ;
 
@@ -49,7 +49,7 @@ RUN if [ ${PYTHON_INSTALL_CELERY} = true ]; then \
 ARG PYTHON_INSTALL_DJANGO_SUIT=false
 RUN if [ ${PYTHON_INSTALL_DJANGO_SUIT} = true ]; then \
         pip install \
-            https://github.com/darklow/django-suit/tarball/v2 \
+            https://github.com/darklow/django-suit/archive/refs/tags/v2.0a1.zip \
     ;fi
 
 # Install django-treebeard
@@ -130,20 +130,24 @@ ARG PUID=1000
 ENV PUID ${PUID}
 ARG PGID=1000
 ENV PGID ${PGID}
+ARG ENABLE_CRONJOB=false
+ENV ENABLE_CRONJOB=${ENABLE_CRONJOB}
 
 # Import entrypoint script to control startup
 COPY entrypoint.sh /usr/local/bin/entrypoint
 
 # Modify user
-RUN chmod 755 /usr/local/bin/entrypoint \
+RUN apt update \
+    && apt install gosu -yqq \
+    && chmod 755 /usr/local/bin/entrypoint \
     && groupmod -o -g ${PGID} www-data \
     && usermod -o -u ${PUID} -g www-data www-data \
     && chmod 755 /usr/local/bin/entrypoint \
-    && echo "#SilverDock cron job\n* * * * * www-data /usr/local/bin/python${SILVERDOCK_PYTHON_VERSION} /usr/share/nginx/${PROJECT_NAME}/manage.py schedule &> /tmp/test.log" | tee -a /etc/crontab \
-    && mkdir -p /usr/share/nginx/${PROJECT_NAME}
+    && echo "#SilverDock cron job\n* * * * * www-data python /var/www/manage.py schedule &> /tmp/test.log" | tee -a /etc/crontab \
+    && mkdir -p /var/www
 
 USER www-data
-WORKDIR /usr/share/nginx/${PROJECT_NAME}
+WORKDIR /var/www
 CMD [ "/usr/local/bin/entrypoint" ]
 
 EXPOSE 8000

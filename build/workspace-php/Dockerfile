@@ -174,7 +174,7 @@ RUN if [ ${PHP_INSTALL_REDIS} = true ]; then \
 ARG SIRVERDOCK_MONGO_VERSION="4.4"
 RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt -y install gnupg \
-        && curl -so - https://www.mongodb.org/static/pgp/server-${SIRVERDOCK_MONGO_VERSION}.asc | apt-key add - \
+        && curl -sL https://www.mongodb.org/static/pgp/server-${SIRVERDOCK_MONGO_VERSION}.asc | apt-key add - \
         && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${SIRVERDOCK_MONGO_VERSION} main" | tee /etc/apt/sources.list.d/mongodb-org-${SIRVERDOCK_MONGO_VERSION}.list \
         && apt update \
         && apt -yqq install mongodb-org-shell; \

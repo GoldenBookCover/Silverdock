@@ -124,7 +124,7 @@ def create_database() :
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Candock 环境辅助工具")
+    parser = argparse.ArgumentParser(description="Silverdock 环境辅助工具")
 
     parser.add_argument('--dev', '-d', action='store_true', help="进入开发环境")
 

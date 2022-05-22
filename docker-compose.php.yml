@@ -203,6 +203,39 @@ services:
     networks:
       - backend
 
+  php-worker:
+    build:
+      context: ./build/php-worker
+      args:
+        - SILVERDOCK_PHP_VERSION=${PHP_VERSION}        
+        - CHANGE_SOURCE=${CHANGE_SOURCE}
+        - INSTALL_BCMATH=${PHP_INSTALL_BCMATH}
+        - INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}
+        - INSTALL_GD=${PHP_INSTALL_GD}
+        - INSTALL_GMP=${PHP_INSTALL_GMP}
+        - INSTALL_GRPC=${PHP_INSTALL_GRPC}
+        - INSTALL_MONGO=${PHP_INSTALL_MONGO}
+        - INSTALL_MYSQL_CLIENT=${PHP_INSTALL_MYSQL_CLIENT}
+        - INSTALL_PCNTL=${PHP_INSTALL_PCNTL}
+        - INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}
+        - INSTALL_REDIS=${PHP_INSTALL_REDIS}
+        - INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}
+        - INSTALL_ZIP_ARCHIVE=${PHP_INSTALL_ZIP_ARCHIVE}
+        - PUID=${PHP_PUID}
+        - PGID=${PHP_PGID}
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php-worker/supervisord.d:/etc/supervisord.d"
+      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
+      - "./log/php-worker:/var/log/supervisord"
+    depends_on:
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+
   ### Laravel Echo Server #######################################
   laravel-echo-server:
     build:

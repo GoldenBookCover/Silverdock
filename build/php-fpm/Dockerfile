@@ -104,7 +104,7 @@ RUN if [ ${PHP_INSTALL_PCNTL} = true ]; then \
 ;fi
 
 ARG PHP_INSTALL_GRPC=false
-RUN if [ ${INSTALL_GRPC} = true ]; then \
+RUN if [ ${PHP_INSTALL_GRPC} = true ]; then \
     # Install the grpc extension
     pecl install grpc && \
     docker-php-ext-enable grpc \

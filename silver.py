@@ -5,6 +5,8 @@
 import argparse
 import os
 import sys
+from configparser import ConfigParser
+from glob import glob
 from os import getenv
 from pathlib import Path, PurePosixPath
 from subprocess import run, Popen, PIPE
@@ -53,6 +55,26 @@ def run_docker(cmd: list, tail: int=None) :
         p1 = Popen(dcp_exec + cmd, stdout=PIPE)
         run(['tail', '-n', str(tail)], stdin=p1.stdout)
         return p1.returncode
+
+
+def restart_php_worker() :
+    """Restart php-worker processes separately."""
+    if is_in_docker() :
+        print('Cannot run inside docker containers')
+        return 3
+
+    for conf in glob('./conf/php-worker/supervisord.d/*.conf') :
+        # Disable interpolation for process_name
+        worker_config = ConfigParser(interpolation=None)
+        worker_config.read(conf)
+
+        default_section = worker_config.sections()[0]
+        program_name = default_section.split(':')[1]
+        numprocs = worker_config.getint(default_section, 'numprocs')
+        for n in range(numprocs) :
+            run_docker(['exec', 'php-worker', 'supervisorctl', 'restart', f"{program_name}:{program_name}_{n:02d}"])
+
+    return 0
 
 
 def create_database() :
@@ -112,6 +134,8 @@ def parse_args():
     group.add_argument('--stop', '-p', action='store_true', help="停止所有服务")
     group.add_argument('--down', action='store_true', help="停止并删除所有服务")
     group.add_argument('--restart', '-r', action='store_true', help="重启所有服务")
+    group.add_argument('--restart-php', action='store_true', help="重启 php-fpm & 队列")
+    group.add_argument('--restart-worker', action='store_true', help="重启队列")
     group.add_argument('--status', '-u', action='store_true', help="查看所有服务状态")
     group.add_argument('--tail', '-t', help="输出指定服务最后 50 条日志")
 
@@ -138,6 +162,15 @@ def main():
 
     if args.restart:
         return run_docker(['stop']) + run_docker(['start'])
+
+    if args.restart_worker:
+        return restart_php_worker()
+
+    if args.restart_php:
+        if run_docker(['exec', '-u', 'www-data', 'php-fpm', 'php', 'artisan', 'octane:reload']) > 0 :
+            return run_docker(['restart', 'php-fpm']) + restart_php_worker()
+        else :
+            return restart_php_worker()
 
     if args.down:
         return run_docker(['down'])

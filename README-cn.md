@@ -44,6 +44,7 @@ cd /PATH/TO/YOUR/PROJECT/_docker
 cp ./conf/php/example.ini ./conf/php/workspace.ini
 cp ./conf/php/example.ini ./conf/php/fpm.ini
 cp ./conf/php/example.ini ./conf/php/queue.ini
+cp ./conf/php-worker/supervisord.d/default.conf.example ./conf/php-worker/supervisord.d/default.conf
 cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 php
 cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 python
 cp ./conf/redis/development.conf ./conf/redis/redis.conf

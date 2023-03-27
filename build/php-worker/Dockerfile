@@ -26,6 +26,7 @@ RUN apk --update add \
         pcre-dev \
         wget \
         zlib-dev \
+        icu-dev \
         supervisor; \
     mkdir -p /var/log/supervisord
 
@@ -105,12 +106,6 @@ RUN if [ ${INSTALL_MYSQL_CLIENT} = true ]; then \
         apk --update add mysql-client; \
     fi
 
-# Install FFMPEG
-ARG INSTALL_FFMPEG=false
-RUN if [ ${INSTALL_FFMPEG} = true ]; then \
-        apk --update add ffmpeg \
-    ;fi
-
 # Install Redis package
 ARG INSTALL_REDIS=false
 RUN if [ ${INSTALL_REDIS} = true ]; then \
@@ -157,6 +152,21 @@ RUN set -eux; \
         docker-php-ext-enable swoole; \
         php -m | grep -oiE '^swoole$'; \
     fi
+
+# Install FFMPEG
+ARG INSTALL_FFMPEG=false
+RUN if [ ${INSTALL_FFMPEG} = true ]; then \
+        apk --update add ffmpeg \
+    ;fi
+
+ARG INSTALL_INTL=false
+RUN set -eux; \
+    if [ ${INSTALL_INTL} = true ]; then \
+      # Install php intl Extension
+      docker-php-ext-install intl; \
+      php -m | grep -q '^intl$'; \
+    fi
+
 
 # Install opencc extension
 # TODO: Adapt to alpine

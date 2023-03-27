@@ -24,6 +24,8 @@ services:
         - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
         - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
         - "PHP_INSTALL_WPCLI=${PHP_INSTALL_WPCLI}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
         - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
@@ -69,6 +71,8 @@ services:
         - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
         - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
         - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
     #restart: always
     # Uncomment this to enable octane server
     #command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000
@@ -218,6 +222,8 @@ services:
         - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
         - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
         - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
     #restart: always
     user: www-data
     entrypoint: ""
@@ -237,7 +243,6 @@ services:
         - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
         - "CHANGE_SOURCE=${CHANGE_SOURCE}"
         - "INSTALL_BCMATH=${PHP_INSTALL_BCMATH}"
-        - "INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
         - "INSTALL_GD=${PHP_INSTALL_GD}"
         - "INSTALL_GMP=${PHP_INSTALL_GMP}"
         - "INSTALL_GRPC=${PHP_INSTALL_GRPC}"
@@ -247,6 +252,8 @@ services:
         - "INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
         - "INSTALL_REDIS=${PHP_INSTALL_REDIS}"
         - "INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "INSTALL_INTL=${PHP_INSTALL_INTL}"
         - "INSTALL_ZIP_ARCHIVE=${PHP_INSTALL_ZIP_ARCHIVE}"
         - "PUID=${PHP_PUID}"
         - "PGID=${PHP_PGID}"

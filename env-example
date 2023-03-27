@@ -37,6 +37,8 @@ PHP_INSTALL_WPCLI=false
 PHP_INSTALL_GRPC=false
 PHP_INSTALL_PROTOBUF=true
 PHP_INSTALL_SWOOLE=true
+PHP_INSTALL_FFMPEG=true
+PHP_INSTALL_INTL=true
 
 # Enable cron service in php-fpm
 PHP_ENABLE_CRONJOB=true
@@ -47,7 +49,6 @@ PHP_PGID=1000
 
 ### PHP_WORKER
 PHP_INSTALL_BCMATH=true
-PHP_INSTALL_FFMPEG=true
 PHP_INSTALL_MYSQL_CLIENT=false
 PHP_INSTALL_ZIP_ARCHIVE=true
 
@@ -57,7 +58,7 @@ PHP_INSTALL_ZIP_ARCHIVE=true
 # Python
 ###########################################################################
 ## python version
-PYTHON_VERSION="3.10"
+PYTHON_VERSION="3.11"
 PYTHON_INSTALL_ANSIBLE=false
 PYTHON_INSTALL_CELERY=false
 PYTHON_INSTALL_CHANNELS=false

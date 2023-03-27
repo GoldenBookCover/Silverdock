@@ -134,6 +134,22 @@ RUN set -eux; \
       php -m | grep -q '^swoole$'; \
     fi
 
+ARG PHP_INSTALL_FFMPEG=false
+RUN set -eux; \
+    if [ ${PHP_INSTALL_FFMPEG} = true ]; then \
+      # Install ffmpeg & ffprobe binaries
+      apt update; \
+      apt install -yqq ffmpeg; \
+    fi
+
+ARG PHP_INSTALL_INTL=false
+RUN set -eux; \
+    if [ ${PHP_INSTALL_INTL} = true ]; then \
+      # Install php intl Extension
+      docker-php-ext-install intl; \
+      php -m | grep -q '^intl$'; \
+    fi
+
 ARG PUID=1000
 ENV PUID=${PUID}
 ARG PGID=1000

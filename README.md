@@ -39,6 +39,7 @@ WORKSPACE_SSH_PUBKEY="your_pubkey_content"
 ### Files
 
 Create some config files from the templates
+
 ```bash
 cd /PATH/TO/YOUR/PROJECT/_docker
 cp ./conf/php/example.ini ./conf/php/workspace.ini
@@ -48,9 +49,17 @@ cp ./conf/php-worker/supervisord.d/default.conf.example ./conf/php-worker/superv
 cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # if you are runnig php apps
 cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf  # if you are runnig python apps
 cp ./conf/redis/development.conf ./conf/redis/redis.conf
+cp ./build/laravel-echo-server/development.json ./conf/laravel-echo-server/laravel-echo-server.json
+```
+
+Make sure all your `entrypoint.sh` files are in unix format, which means the end of line is `\n` instead of `\r\n`, or the containers will not start up.
+
+```bash
+dos2unix ./build/*/entrypoint.sh
 ```
 
 Last but not least, modify the `.env` of your project(if existing), add database creds, etc. After you finished setup, build your project and wait until it succeeds.
+
 ```bash
 docker-compose up -d
 ```

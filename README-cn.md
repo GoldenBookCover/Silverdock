@@ -48,6 +48,13 @@ cp ./conf/php-worker/supervisord.d/default.conf.example ./conf/php-worker/superv
 cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 php
 cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 python
 cp ./conf/redis/development.conf ./conf/redis/redis.conf
+cp ./build/laravel-echo-server/development.json ./conf/laravel-echo-server/laravel-echo-server.json
+```
+
+确保你的 `entrypoint.sh` 文件保持 unix 格式，也就是每一行以 `\n` 结尾，而不是 `\r\n`，否则容器会启动失败。
+
+```bash
+dos2unix ./build/*/entrypoint.sh
 ```
 
 最后是修改你项目的 .env 文件（如果存在），添加数据库账密等信息。以上配置结束后，启动项目，等待构建结束。

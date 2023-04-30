@@ -46,10 +46,23 @@ cp ./conf/php/example.ini ./conf/php/workspace.ini
 cp ./conf/php/example.ini ./conf/php/fpm.ini
 cp ./conf/php/example.ini ./conf/php/queue.ini
 cp ./conf/php-worker/supervisord.d/default.conf.example ./conf/php-worker/supervisord.d/default.conf
-cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # if you are runnig php apps
-cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf  # if you are runnig python apps
 cp ./conf/redis/development.conf ./conf/redis/redis.conf
 cp ./build/laravel-echo-server/development.json ./conf/laravel-echo-server/laravel-echo-server.json
+```
+
+If you are using nginx container
+
+```bash
+cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # if you are runnig php apps
+cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf   # if you are runnig django apps
+cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # if you are runnig flask apps
+```
+
+If you are using uwsgi server(for django or flask)
+
+```bash
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini  # if you are runnig django apps
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini   # if you are runnig flask apps
 ```
 
 Make sure all your `entrypoint.sh` files are in unix format, which means the end of line is `\n` instead of `\r\n`, or the containers will not start up.

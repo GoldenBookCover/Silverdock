@@ -45,10 +45,23 @@ cp ./conf/php/example.ini ./conf/php/workspace.ini
 cp ./conf/php/example.ini ./conf/php/fpm.ini
 cp ./conf/php/example.ini ./conf/php/queue.ini
 cp ./conf/php-worker/supervisord.d/default.conf.example ./conf/php-worker/supervisord.d/default.conf
-cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 php
-cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 python
 cp ./conf/redis/development.conf ./conf/redis/redis.conf
 cp ./build/laravel-echo-server/development.json ./conf/laravel-echo-server/laravel-echo-server.json
+```
+
+如果你使用 nginx 容器
+
+```bash
+cp ./conf/nginx/conf.d/laravel.conf.example ./conf/nginx/conf.d/app.conf  # 如果你的项目是基于 php
+cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf   # 如果你的项目是基于 django
+cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # 如果你的项目是基于 flask
+```
+
+如果你使用 uwsgi 服务运行 django 或 flask 应用
+
+```bash
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini  # 如果你的项目是基于 django
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini   # 如果你的项目是基于 flask
 ```
 
 确保你的 `entrypoint.sh` 文件保持 unix 格式，也就是每一行以 `\n` 结尾，而不是 `\r\n`，否则容器会启动失败。

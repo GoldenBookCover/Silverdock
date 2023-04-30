@@ -81,14 +81,14 @@ ARG PYTHON_INSTALL_NMAP=false
 RUN if [ ${PYTHON_INSTALL_NMAP} = true ]; then \
         apt -yqq install \
             libpcap-dev \
-        && curl -LO https://nmap.org/dist/nmap-7.80.tgz \
-        && tar -zxf nmap-7.80.tgz \
-        && cd nmap-7.80 \
+        && curl -LO https://nmap.org/dist/nmap-7.90.tgz \
+        && tar -zxf nmap-7.90.tgz \
+        && cd nmap-7.90 \
         && ./configure \
         && make -j 2 \
         && make install \
         && cd .. \
-        && rm -rf nmap-7.80 \
+        && rm -rf nmap-7.90 \
         && pip install python-nmap \  
     ;fi
 

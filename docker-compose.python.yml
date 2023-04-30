@@ -39,7 +39,6 @@ services:
         - "INSTALL_NODEJS=${INSTALL_NODEJS}"
         - "NODEJS_VERSION=${NODEJS_VERSION}"
         - "WORKSPACE_SSH_PUBKEY=${WORKSPACE_SSH_PUBKEY}"
-    #restart: always
     ports:
      - "${WORKSPACE_SSH_PORT}:22"
     volumes:
@@ -69,13 +68,39 @@ services:
         - "PYTHON_INSTALL_TREEBEARD=${PYTHON_INSTALL_TREEBEARD}"
         - "PYTHON_INSTALL_WKHTMLTOPDF=${PYTHON_INSTALL_WKHTMLTOPDF}"
         - "PYTHON_IS_PRODUCTION=${PYTHON_IS_PRODUCTION}"
-    #command: uwsgi --ini uwsgi.ini
-    #restart: always
+    restart: unless-stopped
     ports: 
       - "${DJANGO_PORT}:8000"
       - "${DJANGO_STATS_PORT}:9191"
     volumes: 
       - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./_docker/conf/python/uwsgi-django.ini:/var/www/uwsgi.ini"
+    networks:
+      - backend
+
+  flask:
+    build:
+      context: ./build/flask
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
+        - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
+        - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
+        - "PYTHON_INSTALL_ELASTICSEARCH=${PYTHON_INSTALL_ELASTICSEARCH}"
+        - "PYTHON_INSTALL_GOOGLEAPI=${PYTHON_INSTALL_GOOGLEAPI}"
+        - "PYTHON_INSTALL_NMAP=${PYTHON_INSTALL_NMAP}"
+        - "PYTHON_INSTALL_PYTEST=${PYTHON_INSTALL_PYTEST}"
+        - "PYTHON_INSTALL_REDIS=${PYTHON_INSTALL_REDIS}"
+        - "PYTHON_INSTALL_TREEBEARD=${PYTHON_INSTALL_TREEBEARD}"
+        - "PYTHON_INSTALL_WKHTMLTOPDF=${PYTHON_INSTALL_WKHTMLTOPDF}"
+        - "PYTHON_IS_PRODUCTION=${PYTHON_IS_PRODUCTION}"
+    restart: unless-stopped
+    ports: 
+      - "${FLASK_PORT}:8000"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./_docker/conf/python/uwsgi-flask.ini:/var/www/uwsgi.ini"
     networks:
       - backend
 
@@ -93,6 +118,7 @@ services:
         - "http_proxy"
         - "https_proxy"
         - "no_proxy"
+    restart: unless-stopped
     volumes:
       - "${PROJECT_ROOT_PATH}:/var/www"
       - "${NGINX_HOST_LOG_PATH}:/var/log/nginx"
@@ -119,6 +145,7 @@ services:
         - "MARIADB_REPLICA_STATE=${MARIADB_REPLICA_STATE}"
         - "MARIADB_REPLICA_ID=${MARIADB_REPLICA_ID}"
         - "MARIADB_REPLICA_DATABASES=${MARIADB_REPLICA_DATABASES}"
+    restart: unless-stopped
     volumes:
       - "${DATA_PATH_HOST}/mariadb:/var/lib/mysql"
       - "${DATA_PATH_HOST}/mysql_ssl:/etc/mysql_ssl"
@@ -142,6 +169,7 @@ services:
       args:
         - "MONGO_VERSION=${MONGO_VERSION}"
         - "MONGO_KEYFILE_TEXT=${MONGO_KEYFILE_TEXT}"
+    restart: unless-stopped
     ports:
       - "${MONGODB_PORT}:27017"
     volumes:
@@ -159,7 +187,7 @@ services:
   redis:
     image: redis:6
     command: redis-server /usr/local/etc/redis/redis.conf
-    #restart: always
+    restart: unless-stopped
     expose: 
       - "6379"
     volumes:
@@ -178,7 +206,7 @@ services:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
     command: celery -A core worker -l INFO
-    #restart: always
+    restart: unless-stopped
     volumes: 
       - "${PROJECT_ROOT_PATH}:/var/www"
     networks:
@@ -192,7 +220,7 @@ services:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
     command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
-    #restart: always
+    restart: unless-stopped
     ports: 
       - "28002:8000"
     volumes: 

@@ -134,7 +134,6 @@ RUN apt update \
     && echo "#SilverDock cron job\n#* * * * * www-data python /var/www/main.py schedule &> /tmp/test.log" | tee -a /etc/crontab \
     && mkdir -p /var/www
 
-USER www-data
 WORKDIR /var/www
 CMD [ "/usr/local/bin/entrypoint" ]
 

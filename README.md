@@ -61,8 +61,7 @@ cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # if y
 If you are using uwsgi server(for django or flask)
 
 ```bash
-cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini  # if you are runnig django apps
-cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini   # if you are runnig flask apps
+cp ./conf/python/uwsgi-example.ini ../uwsgi.ini
 ```
 
 Make sure all your `entrypoint.sh` files are in unix format, which means the end of line is `\n` instead of `\r\n`, or the containers will not start up.

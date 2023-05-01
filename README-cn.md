@@ -60,8 +60,7 @@ cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # 如�
 如果你使用 uwsgi 服务运行 django 或 flask 应用
 
 ```bash
-cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini  # 如果你的项目是基于 django
-cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini   # 如果你的项目是基于 flask
+cp ./conf/python/uwsgi-example.ini ../uwsgi.ini
 ```
 
 确保你的 `entrypoint.sh` 文件保持 unix 格式，也就是每一行以 `\n` 结尾，而不是 `\r\n`，否则容器会启动失败。

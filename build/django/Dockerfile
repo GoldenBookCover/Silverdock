@@ -12,11 +12,13 @@ RUN apt update \
         vim \
     && pip install \
         django-debug-toolbar \
-        django-dotenv \
+        python-dotenv \
         Pillow \
         django-crispy-forms \
+        crispy-bootstrap5 \
         django-ckeditor \
-        django-markdownx==4.0.0b1 \
+        django-markdownx \
+        alive-progress \
         Django \
     ;
 

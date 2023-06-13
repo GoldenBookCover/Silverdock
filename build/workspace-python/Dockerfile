@@ -15,12 +15,13 @@ RUN apt update \
         bash-completion \
     && pip install \
         django-debug-toolbar \
+        python-dotenv \
         Pillow \
         django-crispy-forms \
+        crispy-bootstrap5 \
         django-ckeditor \
-        django-markdownx==4.0.0b1 \
+        django-markdownx \
         Django \
-        python-dotenv \
         Flask-WTF \
         Flask-SQLAlchemy \
         Flask \

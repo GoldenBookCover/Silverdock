@@ -36,11 +36,11 @@ def is_in_docker() :
 
 
 def run_docker(cmd: list, tail: int=None) :
-    """Run a docker-compose command"""
+    """Run a dockercompose command"""
     if is_in_docker() :
         print('Cannot run inside docker containers')
         return 3
-    dcp_exec = ['docker-compose']
+    dcp_exec = ['docker', 'compose']
     try :
         if os.getuid() > 0 :
             dcp_exec.insert(0, 'sudo')

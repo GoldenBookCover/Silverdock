@@ -17,6 +17,7 @@ RUN apt update \
         django-debug-toolbar \
         python-dotenv \
         Pillow \
+        tqdm \
         django-crispy-forms \
         crispy-bootstrap5 \
         django-ckeditor \

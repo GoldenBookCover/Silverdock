@@ -8,7 +8,7 @@ RUN echo "${MONGO_KEYFILE_TEXT}" > /etc/mongo-cluster.key \
     && chown mongodb:mongodb /etc/mongo-cluster.key \
     && chmod 400 /etc/mongo-cluster.key
 
-COPY mongo_conn.py /usr/local/bin/mongo_conn.py
+COPY healthcheck.py /usr/local/bin/healthcheck.py
 
 RUN apt update -yqq \
     && apt install -yqq \
@@ -16,10 +16,10 @@ RUN apt update -yqq \
         python3-pip \
     && pip3 install -U \
         pymongo \
-    && chmod 555 /usr/local/bin/mongo_conn.py
+    && chmod 555 /usr/local/bin/healthcheck.py
 
 # https://docs.docker.com/engine/reference/builder/#healthcheck
-HEALTHCHECK --interval=10s --timeout=6s --start-period=30s --retries=3 CMD [ "/usr/local/bin/mongo_conn.py" ]
+HEALTHCHECK --interval=10s --timeout=6s --start-period=30s --retries=3 CMD [ "/usr/local/bin/healthcheck.py" ]
 
 CMD ["mongod"]
 

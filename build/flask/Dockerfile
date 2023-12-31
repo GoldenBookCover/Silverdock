@@ -12,6 +12,8 @@ RUN apt update \
         vim \
     && pip install \
         python-dotenv \
+        click \
+        pytest \
         Flask-WTF \
         Flask-SQLAlchemy \
         Flask \

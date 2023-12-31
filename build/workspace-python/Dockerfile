@@ -23,6 +23,8 @@ RUN apt update \
         django-ckeditor \
         django-markdownx \
         Django \
+        click \
+        pytest \
         Flask-WTF \
         Flask-SQLAlchemy \
         Flask \

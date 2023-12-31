@@ -140,10 +140,14 @@ RUN if [ ${PYTHON_INSTALL_CHANNELS} = true ]; then \
 ARG INSTALL_NODEJS=false
 ARG NODEJS_VERSION=16
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
-        curl -sL https://deb.nodesource.com/setup_${INSTALL_NODEJS}.x -o setup.sh \
-        && bash setup.sh \
+        apt update \
+        && apt install -y ca-certificates curl gnupg \
+        && mkdir -p /etc/apt/keyrings \
+        && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /tmp/node-repo.gpg.key \
+        && gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg /tmp/node-repo.gpg.key \
+        && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODEJS_VERSION.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
         && apt update \
-        && apt install nodejs \
+        && apt install -y nodejs \
         && npm install yarn -g \
     ;fi
 

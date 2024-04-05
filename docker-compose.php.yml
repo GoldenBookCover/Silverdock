@@ -73,7 +73,7 @@ services:
         - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
         - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
         - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
-    #restart: always
+    restart: unless-stopped
     # Uncomment this to enable octane server
     #command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000
     ports:
@@ -100,6 +100,7 @@ services:
         - "http_proxy"
         - "https_proxy"
         - "no_proxy"
+    restart: unless-stopped
     volumes:
       - "${PROJECT_ROOT_PATH}:/var/www"
       - "${NGINX_HOST_LOG_PATH}:/var/log/nginx"
@@ -126,6 +127,7 @@ services:
         - "MARIADB_REPLICA_STATE=${MARIADB_REPLICA_STATE}"
         - "MARIADB_REPLICA_ID=${MARIADB_REPLICA_ID}"
         - "MARIADB_REPLICA_DATABASES=${MARIADB_REPLICA_DATABASES}"
+    restart: unless-stopped
     volumes:
       - "${DATA_PATH_HOST}/mariadb:/var/lib/mysql"
       - "${DATA_PATH_HOST}/mysql_ssl:/etc/mysql_ssl"
@@ -149,8 +151,12 @@ services:
       args:
         - "MONGO_VERSION=${MONGO_VERSION}"
         - "MONGO_KEYFILE_TEXT=${MONGO_KEYFILE_TEXT}"
+    command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
+    # mongodb cluster
+    # command: mongod --auth --replSet ${MONGO_CLUSTER_NAME} --bind_ip_all --keyFile /etc/mongo-cluster.key --port ${MONGODB_PORT}
+    restart: unless-stopped
     ports:
-      - "${MONGODB_PORT}:27017"
+      - "${MONGODB_LISTEN_HOST}${MONGODB_PORT}:${MONGODB_PORT}"
     volumes:
       - "${DATA_PATH_HOST}/mongo:/data/db"
       - "${DATA_PATH_HOST}/mongo_config:/data/configdb"
@@ -166,7 +172,7 @@ services:
   redis:
     image: redis:6
     command: redis-server /usr/local/etc/redis/redis.conf
-    #restart: always
+    restart: unless-stopped
     expose: 
       - "6379"
     volumes:
@@ -197,7 +203,7 @@ services:
         - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
         - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
         - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
-    #restart: always
+    restart: unless-stopped
     user: www-data
     entrypoint: ""
     command: php /var/www/artisan queue:work --sleep=3 --tries=3
@@ -230,6 +236,7 @@ services:
         - "INSTALL_ZIP_ARCHIVE=${PHP_INSTALL_ZIP_ARCHIVE}"
         - "PUID=${PHP_PUID}"
         - "PGID=${PHP_PGID}"
+    restart: unless-stopped
     volumes:
       - "${PROJECT_ROOT_PATH}:/var/www"
       - "./conf/php-worker/supervisord.d:/etc/supervisord.d"
@@ -247,6 +254,7 @@ services:
   laravel-echo-server:
     build:
       context: ./build/laravel-echo-server
+    restart: unless-stopped
     volumes:
       - ./conf/laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro
     ports:

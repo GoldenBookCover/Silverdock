@@ -182,8 +182,10 @@ def main():
         # run_docker(['exec', 'mariadb', 'mysql', '--user=root', f"--password={getenv('MARIADB_ROOT_PASSWORD')}", '-e', f"SHOW DATABASES;"])
         run_docker(['exec', 'mariadb', 'mysql', '--user=root', f"--password={getenv('MARIADB_ROOT_PASSWORD')}"])
 
+    mongo_version = (int(n) for n in getenv('MONGO_VERSION').split('.'))
+    mongo_shell = 'mongosh' if mongo_version[0] >= 6 else 'mongo'
     if args.mongo :
-        run_docker(['exec', 'mongo', 'mongo', '--authenticationDatabase=admin', f"--username={getenv('MONGO_ROOT_USERNAME')}", f"--password={getenv('MONGO_ROOT_PASSWORD')}"])
+        run_docker(['exec', 'mongo', mongo_shell, '--authenticationDatabase=admin', f"--username={getenv('MONGO_ROOT_USERNAME')}", f"--password={getenv('MONGO_ROOT_PASSWORD')}", f"--port={getenv('MONGODB_PORT')}"])
 
     if args.tail:
         return run_docker(['logs', args.tail], tail=50)

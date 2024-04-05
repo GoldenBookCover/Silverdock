@@ -148,7 +148,9 @@ services:
       context: ./build/mongo
       args: 
         SIRVERDOCK_MONGO_VERSION: ${MONGO_VERSION}
-    #restart: always
+    command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
+    # mongodb cluster
+    # command: mongod --auth --replSet ${MONGO_CLUSTER_NAME} --bind_ip_all --keyFile /etc/mongo-cluster.key --port ${MONGODB_PORT}
     expose:
       - "27017"
     volumes:

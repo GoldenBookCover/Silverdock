@@ -124,11 +124,16 @@ MARIADB_REPLICA_DATABASES="mydb"
 ###########################################################################
 ## MongoDB version
 MONGO_VERSION="4.4"
+
+# <empty> or "127.0.0.1:"
+MONGODB_LISTEN_HOST=""
 MONGODB_PORT=27017
+
 MONGO_ROOT_PASSWORD=mypassword
 MONGO_ROOT_USERNAME=root
 
 # Communication encryption in replication
+MONGO_CLUSTER_NAME=mongo-cluster
 MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
 
 

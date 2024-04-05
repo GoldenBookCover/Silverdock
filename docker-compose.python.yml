@@ -169,9 +169,12 @@ services:
       args:
         - "MONGO_VERSION=${MONGO_VERSION}"
         - "MONGO_KEYFILE_TEXT=${MONGO_KEYFILE_TEXT}"
+    command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
+    # mongodb cluster
+    # command: mongod --auth --replSet ${MONGO_CLUSTER_NAME} --bind_ip_all --keyFile /etc/mongo-cluster.key --port ${MONGODB_PORT}
     restart: unless-stopped
     ports:
-      - "${MONGODB_PORT}:27017"
+      - "${MONGODB_LISTEN_HOST}${MONGODB_PORT}:${MONGODB_PORT}"
     volumes:
       - "${DATA_PATH_HOST}/mongo:/data/db"
       - "${DATA_PATH_HOST}/mongo_config:/data/configdb"

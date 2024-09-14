@@ -1,12 +1,14 @@
 
 ARG SILVERDOCK_PHP_VERSION
+ARG OS_PREFER=bookworm
 
-FROM php:${SILVERDOCK_PHP_VERSION}-fpm-buster
+FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
 ARG SILVERDOCK_PHP_VERSION
+ARG OS_PREFER=bookworm
 
 # Mandatory
 RUN set -xe; \
@@ -187,13 +189,18 @@ RUN if [ ${PHP_INSTALL_REDIS} = true ]; then \
         apt install -yqq redis; \
     fi
 
-ARG SIRVERDOCK_MONGO_VERSION="4.4"
+ARG SIRVERDOCK_MONGO_VERSION="6.0"
 RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt -y install gnupg \
-        && curl -sL https://www.mongodb.org/static/pgp/server-${SIRVERDOCK_MONGO_VERSION}.asc | apt-key add - \
-        && echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/${SIRVERDOCK_MONGO_VERSION} main" | tee /etc/apt/sources.list.d/mongodb-org-${SIRVERDOCK_MONGO_VERSION}.list \
+        && curl -fsSL https://www.mongodb.org/static/pgp/server-${SIRVERDOCK_MONGO_VERSION}.asc | \
+            gpg -o /usr/share/keyrings/mongodb-server-${SIRVERDOCK_MONGO_VERSION}.gpg --dearmor \
+        && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-${SIRVERDOCK_MONGO_VERSION}.gpg] http://repo.mongodb.org/apt/debian $(lsb_release -sc)/mongodb-org/${SIRVERDOCK_MONGO_VERSION} main" | tee /etc/apt/sources.list.d/mongodb-org-${SIRVERDOCK_MONGO_VERSION}.list \
         && apt update \
-        && apt -yqq install mongodb-org-shell; \
+        && if [ ${SIRVERDOCK_MONGO_VERSION%%.*} -lt 5 ]; then \
+             apt -yqq install mongodb-org-shell; \
+           else \
+             apt -yqq install mongodb-mongosh; \
+           fi; \
     fi
 
 ARG PHP_INSTALL_WPCLI=false
@@ -203,14 +210,14 @@ RUN if [ ${PHP_INSTALL_WPCLI} = true ]; then \
     fi
 
 ARG INSTALL_NODEJS=false
-ARG NODEJS_VERSION=16
+ARG NODEJS_VERSION=20
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
         apt update \
         && apt install -y ca-certificates curl gnupg \
         && mkdir -p /etc/apt/keyrings \
         && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /tmp/node-repo.gpg.key \
         && gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg /tmp/node-repo.gpg.key \
-        && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODEJS_VERSION.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
+        && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODEJS_VERSION}.x nodistro main" > /etc/apt/sources.list.d/nodesource.list \
         && apt update \
         && apt install -y nodejs \
         && npm install yarn -g \
@@ -220,7 +227,7 @@ RUN if [ ${INSTALL_NODEJS} = true ]; then \
 ARG WORKSPACE_SSH_PUBKEY
 RUN touch /usr/local/etc/php/conf.d/silver.ini \
     && groupadd -o -g ${PGID} silverdock \
-    && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "SilverDock user" silverdock \
+    && useradd -o -u ${PUID} -g silverdock -s /bin/bash -m -c "Silverdock user" silverdock \
     && install -d -m 700 -o silverdock -g silverdock /home/silverdock/.ssh \
     && echo "$WORKSPACE_SSH_PUBKEY" > /home/silverdock/.ssh/authorized_keys \
     && chmod 600 /home/silverdock/.ssh/authorized_keys \

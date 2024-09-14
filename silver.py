@@ -1,17 +1,27 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.12
 # -*- coding: utf-8 -*-
-# This script provides quick access to some docker actions
 
-import argparse
+"""
+This script provides quick access to some docker actions
+
+Dependencies:
+  pip install python-dotenv
+"""
+
 import os
 import sys
+from argparse import ArgumentParser
 from configparser import ConfigParser
 from glob import glob
 from os import getenv
 from pathlib import Path, PurePosixPath
 from subprocess import run, Popen, PIPE
-from dotenv import load_dotenv
 from platform import system as platsys
+try :
+    from dotenv import load_dotenv
+except ImportError :
+    print('dotenv not found, please run:\npip install python-dotenv')
+    exit(2)
 
 #TODO: Compatible with Windows
 #TODO: Query mongodb data
@@ -24,7 +34,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve()
 
 
-def is_in_docker() :
+def _is_in_docker() :
     try :
         with open('/proc/1/cgroup', 'r') as f:
             if ':/docker/' in f.read():
@@ -37,7 +47,7 @@ def is_in_docker() :
 
 def run_docker(cmd: list, tail: int=None) :
     """Run a dockercompose command"""
-    if is_in_docker() :
+    if _is_in_docker() :
         print('Cannot run inside docker containers')
         return 3
     dcp_exec = ['docker', 'compose']
@@ -47,8 +57,10 @@ def run_docker(cmd: list, tail: int=None) :
     except AttributeError :
         # Windows does not have getuid
         pass
+    return run(dcp_exec + cmd).returncode
+
     if tail is None :
-        return run(dcp_exec + cmd).returncode
+        pass
     else :
         if platsys() == 'Windows' :
             return run(dcp_exec + cmd).returncode
@@ -59,7 +71,7 @@ def run_docker(cmd: list, tail: int=None) :
 
 def restart_php_worker() :
     """Restart php-worker processes separately."""
-    if is_in_docker() :
+    if _is_in_docker() :
         print('Cannot run inside docker containers')
         return 3
 
@@ -123,31 +135,7 @@ def create_database() :
     # ])
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Silverdock 环境辅助工具")
-
-    parser.add_argument('--dev', '-d', action='store_true', help="进入开发环境")
-
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--init', action='store_true', help='构建并运行所有服务')
-    group.add_argument('--start', '-s', action='store_true', help='启动所有服务')
-    group.add_argument('--stop', '-p', action='store_true', help="停止所有服务")
-    group.add_argument('--down', action='store_true', help="停止并删除所有服务")
-    group.add_argument('--restart', '-r', action='store_true', help="重启所有服务")
-    group.add_argument('--restart-php', action='store_true', help="重启 php-fpm & 队列")
-    group.add_argument('--restart-worker', action='store_true', help="重启队列")
-    group.add_argument('--status', '-u', action='store_true', help="查看所有服务状态")
-    group.add_argument('--tail', '-t', help="输出指定服务最后 50 条日志")
-
-    parser.add_argument('--mysql', action='store_true', help="进入 mysql 命令行")
-    parser.add_argument('--mongo', action='store_true', help="进入 mongo 命令行")
-
-    return parser.parse_args()
-
-
-def main():
-    args = parse_args()
-
+def main(args):
     if args.dev:
         return run_docker(['exec', '-u', 'silverdock', 'workspace', 'bash'])
 
@@ -180,16 +168,44 @@ def main():
 
     if args.mysql :
         # run_docker(['exec', 'mariadb', 'mysql', '--user=root', f"--password={getenv('MARIADB_ROOT_PASSWORD')}", '-e', f"SHOW DATABASES;"])
-        run_docker(['exec', 'mariadb', 'mysql', '--user=root', f"--password={getenv('MARIADB_ROOT_PASSWORD')}"])
+        run_docker([
+            'exec', 'mariadb', 
+            'mysql', '--user=root', 
+            f"--password={getenv('MARIADB_ROOT_PASSWORD')}",
+        ])
 
-    mongo_version = (int(n) for n in getenv('MONGO_VERSION').split('.'))
-    mongo_shell = 'mongosh' if mongo_version[0] >= 6 else 'mongo'
+    mongo_version = tuple(int(n) for n in getenv('MONGO_VERSION').split('.'))
+    mongo_shell = 'mongosh' if mongo_version[0] >= 5 else 'mongo'
     if args.mongo :
-        run_docker(['exec', 'mongo', mongo_shell, '--authenticationDatabase=admin', f"--username={getenv('MONGO_ROOT_USERNAME')}", f"--password={getenv('MONGO_ROOT_PASSWORD')}", f"--port={getenv('MONGODB_PORT')}"])
+        run_docker([
+            'exec', 'mongo', 
+            mongo_shell, '--authenticationDatabase=admin', 
+            f"--username={getenv('MONGO_ROOT_USERNAME')}", 
+            f"--password={getenv('MONGO_ROOT_PASSWORD')}", 
+            f"--port={getenv('MONGODB_PORT')}",
+        ])
 
     if args.tail:
-        return run_docker(['logs', args.tail], tail=50)
+        return run_docker(['logs', '-n', '50', args.tail])
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = ArgumentParser(description="Silverdock 环境辅助工具")
+
+    parser.add_argument('--dev', '-d', action='store_true', help="进入开发环境")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--init', action='store_true', help='构建并运行所有服务')
+    group.add_argument('--start', '-s', action='store_true', help='启动所有服务')
+    group.add_argument('--stop', '-p', action='store_true', help="停止所有服务")
+    group.add_argument('--down', action='store_true', help="停止并删除所有服务")
+    group.add_argument('--restart', '-r', action='store_true', help="重启所有服务")
+    group.add_argument('--restart-php', action='store_true', help="重启 php-fpm & 队列")
+    group.add_argument('--restart-worker', action='store_true', help="重启队列")
+    group.add_argument('--status', '-u', action='store_true', help="查看所有服务状态")
+    group.add_argument('--tail', '-t', help="输出指定服务最后 50 条日志")
+
+    parser.add_argument('--mysql', action='store_true', help="进入 mysql 命令行")
+    parser.add_argument('--mongo', action='store_true', help="进入 mongo 命令行")
+
+    sys.exit(main(parser.parse_args()))

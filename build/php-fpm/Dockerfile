@@ -1,7 +1,8 @@
 
 ARG SILVERDOCK_PHP_VERSION
+ARG OS_PREFER=bookworm
 
-FROM php:${SILVERDOCK_PHP_VERSION}-fpm-buster
+FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive

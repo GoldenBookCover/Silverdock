@@ -1,5 +1,7 @@
 ARG SILVERDOCK_PHP_VERSION
-FROM php:${SILVERDOCK_PHP_VERSION}-alpine
+ARG OS_PREFER=alpine
+
+FROM php:${SILVERDOCK_PHP_VERSION}-${OS_PREFER}
 
 ARG SILVERDOCK_PHP_VERSION
 
@@ -40,7 +42,7 @@ RUN pecl channel-update pecl.php.net; \
         pdo_mysql \
         xml \
     ; \
-    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "1" ]; then \
+    if [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ]; then \
         php -m | grep -q 'tokenizer'; \
     else \
         docker-php-ext-install tokenizer; \

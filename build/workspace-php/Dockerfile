@@ -213,7 +213,7 @@ ARG INSTALL_NODEJS=false
 ARG NODEJS_VERSION=20
 RUN if [ ${INSTALL_NODEJS} = true ]; then \
         apt update \
-        && apt install -y ca-certificates curl gnupg \
+        && apt install -y ca-certificates curl gnupg npm \
         && mkdir -p /etc/apt/keyrings \
         && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key -o /tmp/node-repo.gpg.key \
         && gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg /tmp/node-repo.gpg.key \

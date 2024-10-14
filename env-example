@@ -104,7 +104,6 @@ NODEJS_VERSION="20"
 # MariaDB & MySQL
 ###########################################################################
 MARIADB_VERSION=10.11
-MARIADB_PORT=3306
 MARIADB_DATABASE=mydb
 MARIADB_USER=myadmin
 MARIADB_PASSWORD=mypass

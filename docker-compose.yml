@@ -109,6 +109,7 @@ services:
       - "${DJANGO_STATS_PORT}:9191"
     volumes: 
       - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/python/uwsgi-django.ini:/var/www/uwsgi.ini"
     networks:
       - backend
 
@@ -135,6 +136,7 @@ services:
       - "${FLASK_PORT}:8000"
     volumes: 
       - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/python/uwsgi-flask.ini:/var/www/uwsgi.ini"
     networks:
       - backend
 

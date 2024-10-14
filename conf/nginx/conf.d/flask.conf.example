@@ -14,7 +14,7 @@ server {
     index index.html index.htm;
 
     location / {
-         uwsgi_pass django-upstream;
+         uwsgi_pass python-upstream;
     }
 
     location ~ /\.ht {

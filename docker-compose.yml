@@ -147,10 +147,10 @@ services:
     build:
       context: ./build/nginx
       args:
-        - "PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER}"
+        - "PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-localhost}"
         - "PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}"
-        - "DJANGO_UPSTREAM_CONTAINER=${NGINX_DJANGO_UPSTREAM_CONTAINER}"
-        - "DJANGO_UPSTREAM_PORT=${NGINX_DJANGO_UPSTREAM_PORT}"
+        - "PYTHON_UPSTREAM_CONTAINER=${NGINX_PYTHON_UPSTREAM_CONTAINER:-localhost}"
+        - "PYTHON_UPSTREAM_PORT=${NGINX_PYTHON_UPSTREAM_PORT}"
         - "http_proxy"
         - "https_proxy"
         - "no_proxy"

@@ -1,22 +1,28 @@
 ## Silverdock
+
 A Docker environment for web development. Support PHP(Laravel) and Python(Django).
 
 ## Quickstart
+
 If you just want a simplest setup, try this.
 
 ### .env
+
 First get the project, I recommend you put it in a subfolder under your project
+
 ```bash
-git clone https://github.com/MonstreCharmant/Silverdock.git /PATH/TO/YOUR/PROJECT/_docker
+git clone https://github.com/GoldenBookCover/Silverdock.git /PATH/TO/YOUR/PROJECT/_docker
 cd /PATH/TO/YOUR/PROJECT/_docker
 ```
 
 Now generate an .env file from the template
+
 ```bash
 cp env-example .env
 ```
 
 Edit .env file and do some necessary modifications
+
 ```bash
 # Edit .env with your favorite editor
 PROJECT_ROOT_PATH=..  # Your project path
@@ -31,6 +37,7 @@ WORKSPACE_BASE={python|php}  # Your preferred app language
 ```
 
 If you want remote login, change ssh settings
+
 ```bash
 WORKSPACE_SSH_PORT="2222"
 WORKSPACE_SSH_PUBKEY="your_pubkey_content"
@@ -58,10 +65,19 @@ cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf   # if y
 cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # if you are runnig flask apps
 ```
 
+Edit .env file
+
+```bash
+NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+# Or
+NGINX_PYTHON_UPSTREAM_CONTAINER=django
+```
+
 If you are using uwsgi server(for django or flask)
 
 ```bash
-cp ./conf/python/uwsgi-example.ini ../uwsgi.ini
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini
 ```
 
 Make sure all your `entrypoint.sh` files are in unix format, which means the end of line is `\n` instead of `\r\n`, or the containers will not start up.

@@ -1,24 +1,29 @@
 ## Silverdock
+
 基于 Docker 的 web 应用开发框架。支持 PHP（Laravel）和 Python（Django）。
 
 ## 快速开始
+
 如果你想快速开始一个项目，试试这个吧。
 
 ### .env
+
 首先你需要获取 Silverdock 的代码，我建议你放在自己项目的一个子目录下
+
 ```bash
-git clone https://github.com/MonstreCharmant/Silverdock.git /PATH/TO/YOUR/PROJECT/_docker
+git clone https://github.com/GoldenBookCover/Silverdock.git /PATH/TO/YOUR/PROJECT/_docker
 cd /PATH/TO/YOUR/PROJECT/_docker
 ```
 
 然后创建一个 .env 文件，可以从模版复制一份
+
 ```bash
 cp env-example .env
 ```
 
-编辑 .env 文件，配置一些必要的选项
+编辑 `.env` 文件，配置一些必要的选项
+
 ```bash
-# Edit .env with your favorite editor
 PROJECT_ROOT_PATH=..  # 你的项目路径
 COMPOSE_PROJECT_NAME=my_project_name  # Docker compose 命名空间
 COMPOSE_FILE=docker-compose.{python|php}.yml  # 首选 compose 文件
@@ -31,6 +36,7 @@ WORKSPACE_BASE={python|php}  # 首选编程语言
 ```
 
 如果你想要远程 ssh 访问，需要修改设置
+
 ```bash
 WORKSPACE_SSH_PORT="2222"
 WORKSPACE_SSH_PUBKEY="your_pubkey_content"
@@ -39,6 +45,7 @@ WORKSPACE_SSH_PUBKEY="your_pubkey_content"
 ### 文件
 
 创建一些配置文件，可以从模版复制
+
 ```bash
 cd /PATH/TO/YOUR/PROJECT/_docker
 cp ./conf/php/example.ini ./conf/php/workspace.ini
@@ -57,10 +64,19 @@ cp ./conf/nginx/conf.d/django.conf.example ./conf/nginx/conf.d/app.conf   # 如�
 cp ./conf/nginx/conf.d/flask.conf.example ./conf/nginx/conf.d/app.conf    # 如果你的项目是基于 flask
 ```
 
+编辑 `.env`
+
+```bash
+NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+# Or
+NGINX_PYTHON_UPSTREAM_CONTAINER=django
+```
+
 如果你使用 uwsgi 服务运行 django 或 flask 应用
 
 ```bash
-cp ./conf/python/uwsgi-example.ini ../uwsgi.ini
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-django.ini
+cp ./conf/python/uwsgi-example.ini ./conf/python/uwsgi-flask.ini
 ```
 
 确保你的 `entrypoint.sh` 文件保持 unix 格式，也就是每一行以 `\n` 结尾，而不是 `\r\n`，否则容器会启动失败。
@@ -76,5 +92,5 @@ docker-compose up -d
 
 ## TODO
 
-- doc: mariadb: replication, certs file, id, databases
-- doc: env:PHP_FPM_LISTEN_PORT add 127.0.0.1
+- docs: mariadb: replication, certs file, id, databases
+

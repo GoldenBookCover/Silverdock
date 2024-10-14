@@ -22,10 +22,10 @@ RUN set -x ; \
     addgroup -g 82 -S www-data ; \
     adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
-ARG PHP_UPSTREAM_CONTAINER=php-fpm
+ARG PHP_UPSTREAM_CONTAINER=localhost
 ARG PHP_UPSTREAM_PORT=9000
-ARG DJANGO_UPSTREAM_CONTAINER=django
-ARG DJANGO_UPSTREAM_PORT=8000
+ARG PYTHON_UPSTREAM_CONTAINER=localhost
+ARG PYTHON_UPSTREAM_PORT=8000
 
 # Create 'messages' file used from 'logrotate'
 RUN touch /var/log/messages
@@ -35,7 +35,7 @@ COPY logrotate/nginx /etc/logrotate.d/
 
 # Set upstream conf and remove the default conf
 RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
-    && echo "upstream django-upstream { server ${DJANGO_UPSTREAM_CONTAINER}:${DJANGO_UPSTREAM_PORT}; }" >> /etc/nginx/conf.d/upstream.conf \
+    && echo "upstream python-upstream { server ${PYTHON_UPSTREAM_CONTAINER}:${PYTHON_UPSTREAM_PORT}; }" >> /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
 ADD ./startup.sh /opt/startup.sh

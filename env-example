@@ -79,10 +79,11 @@ FLASK_PORT=18008
 ###########################################################################
 # Nginx
 ###########################################################################
-NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
-NGINX_PHP_UPSTREAM_PORT=9000
-NGINX_DJANGO_UPSTREAM_CONTAINER=django
-NGINX_DJANGO_UPSTREAM_PORT=8000
+# Uncomment corresponding vars
+#NGINX_PHP_UPSTREAM_CONTAINER=php-fpm
+#NGINX_PHP_UPSTREAM_PORT=9000
+#NGINX_PYTHON_UPSTREAM_CONTAINER=django
+#NGINX_PYTHON_UPSTREAM_PORT=8000
 NGINX_HOST_LOG_PATH=./conf/nginx/log
 NGINX_SITES_PATH=./conf/nginx/conf.d
 NGINX_SSL_PATH=./conf/nginx/ssl

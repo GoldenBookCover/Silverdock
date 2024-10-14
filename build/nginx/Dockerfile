@@ -26,6 +26,8 @@ ARG PHP_UPSTREAM_CONTAINER=localhost
 ARG PHP_UPSTREAM_PORT=9000
 ARG PYTHON_UPSTREAM_CONTAINER=localhost
 ARG PYTHON_UPSTREAM_PORT=8000
+ARG JAVA_UPSTREAM_CONTAINER=localhost
+ARG JAVA_UPSTREAM_PORT=8080
 
 # Create 'messages' file used from 'logrotate'
 RUN touch /var/log/messages
@@ -36,6 +38,7 @@ COPY logrotate/nginx /etc/logrotate.d/
 # Set upstream conf and remove the default conf
 RUN echo "upstream php-upstream { server ${PHP_UPSTREAM_CONTAINER}:${PHP_UPSTREAM_PORT}; }" > /etc/nginx/conf.d/upstream.conf \
     && echo "upstream python-upstream { server ${PYTHON_UPSTREAM_CONTAINER}:${PYTHON_UPSTREAM_PORT}; }" >> /etc/nginx/conf.d/upstream.conf \
+    && echo "upstream java-upstream { server ${JAVA_UPSTREAM_CONTAINER}:${JAVA_UPSTREAM_PORT}; }" >> /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
 ADD ./startup.sh /opt/startup.sh

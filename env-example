@@ -77,6 +77,16 @@ FLASK_PORT=18008
 
 
 ###########################################################################
+# Tomcat
+###########################################################################
+# openjdk version
+# https://hub.docker.com/_/amazoncorretto
+OPENJDK_VERSION="8u422-alpine3.19"
+TOMCAT_PORT="127.0.0.1:8080"
+
+
+
+###########################################################################
 # Nginx
 ###########################################################################
 # Uncomment corresponding vars
@@ -84,6 +94,8 @@ FLASK_PORT=18008
 #NGINX_PHP_UPSTREAM_PORT=9000
 #NGINX_PYTHON_UPSTREAM_CONTAINER=django
 #NGINX_PYTHON_UPSTREAM_PORT=8000
+#NGINX_JAVA_UPSTREAM_CONTAINER=tomcat
+#NGINX_JAVA_UPSTREAM_PORT=8000
 NGINX_HOST_LOG_PATH=./conf/nginx/log
 NGINX_SITES_PATH=./conf/nginx/conf.d
 NGINX_SSL_PATH=./conf/nginx/ssl

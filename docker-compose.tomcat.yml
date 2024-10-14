@@ -1,0 +1,87 @@
+---
+
+services:
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  tomcat:
+    build:
+      context: ./build/tomcat
+      args:
+        - "SILVERDOCK_OPENJDK_VERSION=${OPENJDK_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+    restart: unless-stopped
+    ports: 
+      - "${TOMCAT_PORT}:8080"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/usr/local/tomcat"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Nginx
+  ###########################################################################
+  nginx:
+    build:
+      context: ./build/nginx
+      args:
+        - "PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-localhost}"
+        - "PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT:-9000}"
+        - "PYTHON_UPSTREAM_CONTAINER=${NGINX_PYTHON_UPSTREAM_CONTAINER:-localhost}"
+        - "PYTHON_UPSTREAM_PORT=${NGINX_PYTHON_UPSTREAM_PORT:-8000}"
+        - "JAVA_UPSTREAM_CONTAINER=${NGINX_JAVA_UPSTREAM_CONTAINER:-localhost}"
+        - "JAVA_UPSTREAM_PORT=${NGINX_JAVA_UPSTREAM_PORT:-8080}"
+        - "http_proxy"
+        - "https_proxy"
+        - "no_proxy"
+    restart: unless-stopped
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "${NGINX_HOST_LOG_PATH}:/var/log/nginx"
+      - "${NGINX_SITES_PATH}:/etc/nginx/sites-available"
+      - "${NGINX_SSL_PATH}:/etc/nginx/ssl"
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+      - "${VARNISH_BACKEND_PORT}:81"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Database
+  ###########################################################################
+  mariadb:
+    build:
+      context: ./build/mariadb
+      args:
+        - "http_proxy"
+        - "https_proxy"
+        - "no_proxy"
+        - "MARIADB_VERSION=${MARIADB_VERSION}"
+        - "MARIADB_REPLICA_STATE=${MARIADB_REPLICA_STATE}"
+        - "MARIADB_REPLICA_ID=${MARIADB_REPLICA_ID}"
+        - "MARIADB_REPLICA_DATABASES=${MARIADB_REPLICA_DATABASES}"
+    restart: unless-stopped
+    volumes:
+      - "${DATA_PATH_HOST}/mariadb:/var/lib/mysql"
+      - "${DATA_PATH_HOST}/mysql_ssl:/etc/mysql_ssl"
+      - "${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
+    ports:
+      - "${MARIADB_PORT}:3306"
+    environment:
+      - "TZ=${WORKSPACE_TIMEZONE}"
+      - "MYSQL_DATABASE=${MARIADB_DATABASE}"
+      - "MYSQL_USER=${MARIADB_USER}"
+      - "MYSQL_PASSWORD=${MARIADB_PASSWORD}"
+      - "MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}"
+    networks:
+      backend:
+        aliases:
+          - mysql
+
+networks: 
+  backend:
+    driver: bridge
+

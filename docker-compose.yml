@@ -151,6 +151,8 @@ services:
         - "PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}"
         - "PYTHON_UPSTREAM_CONTAINER=${NGINX_PYTHON_UPSTREAM_CONTAINER:-localhost}"
         - "PYTHON_UPSTREAM_PORT=${NGINX_PYTHON_UPSTREAM_PORT}"
+        - "JAVA_UPSTREAM_CONTAINER=${NGINX_JAVA_UPSTREAM_CONTAINER:-localhost}"
+        - "JAVA_UPSTREAM_PORT=${NGINX_JAVA_UPSTREAM_PORT}"
         - "http_proxy"
         - "https_proxy"
         - "no_proxy"

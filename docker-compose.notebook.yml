@@ -10,14 +10,12 @@ services:
       args:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
-        - "PUID=${PHP_PUID}"
-        - "PGID=${PHP_PGID}"
     restart: unless-stopped
     ports: 
       - "${NOTEBOOK_PORT}:8888"
     volumes: 
-      - "${NOTEBOOK_WORKSPACE}:/home/note/notebook"
-      - "./conf/notebook/jupyter_notebook_config.py:/home/note/.jupyter/jupyter_notebook_config.py"
+      - "${NOTEBOOK_WORKSPACE}:/notebook"
+      - "./conf/notebook/jupyter_lab_config.py:/root/.jupyter/jupyter_lab_config.py"
     networks:
       - backend
     # Enable GPU access in container

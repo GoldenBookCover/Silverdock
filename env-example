@@ -43,7 +43,8 @@ PHP_INSTALL_INTL=true
 # Enable cron service in php-fpm
 PHP_ENABLE_CRONJOB=true
 
-### PHP process UID, used in php-fpm
+### PHP process UID, though prefixed with php,
+# it's used in all containers
 PHP_PUID=1000
 PHP_PGID=1000
 
@@ -83,6 +84,14 @@ FLASK_PORT=18008
 # https://hub.docker.com/_/amazoncorretto
 OPENJDK_VERSION="8u422-alpine3.19"
 TOMCAT_PORT="127.0.0.1:8080"
+
+
+
+###########################################################################
+# Notebook
+###########################################################################
+NOTEBOOK_PORT="8080"
+NOTEBOOK_WORKSPACE=../notebook
 
 
 

@@ -1,0 +1,37 @@
+---
+
+services:
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  notebook:
+    build:
+      context: ./build/notebook
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+    restart: unless-stopped
+    ports: 
+      - "${NOTEBOOK_PORT}:8888"
+    volumes: 
+      - "${NOTEBOOK_WORKSPACE}:/home/note/notebook"
+      - "./conf/notebook/jupyter_notebook_config.py:/home/note/.jupyter/jupyter_notebook_config.py"
+    networks:
+      - backend
+    # Enable GPU access in container
+    # https://docs.docker.com/engine/containers/resource_constraints/#gpu
+    # https://docs.docker.com/compose/how-tos/gpu-support/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+networks: 
+  backend:
+    driver: bridge
+

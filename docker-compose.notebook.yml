@@ -16,6 +16,10 @@ services:
     volumes: 
       - "${NOTEBOOK_WORKSPACE}:/notebook"
       - "./conf/notebook/jupyter_lab_config.py:/root/.jupyter/jupyter_lab_config.py"
+      - "${DATA_PATH_HOST}/python-packages:/usr/lib/custom-site-packages"
+    environment:
+      - "PYTHONPATH=/usr/lib/custom-site-packages"
+      - "PIP_TARGET=/usr/lib/custom-site-packages"
     networks:
       - backend
     # Enable GPU access in container

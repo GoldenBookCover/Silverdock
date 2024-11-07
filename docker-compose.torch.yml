@@ -1,0 +1,43 @@
+---
+
+services:
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  gradio:
+    build:
+      context: ./build/python-torch
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PYTHON_REQUIREMENTS=${PYTHON_REQUIREMENTS}"
+        - "PYTHON_TORCH_VERSION=${PYTHON_TORCH_VERSION}"
+        - "PYTHON_TORCH_INDEX=${PYTHON_TORCH_INDEX}"
+    command: gosu www-data python app.py
+    restart: unless-stopped
+    ports: 
+      - "${PYTHON_TORCH_PORT}:7860"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "${DATA_PATH_HOST}/python-packages:/usr/lib/custom-site-packages"
+    environment:
+      - "GRADIO_SERVER_NAME=0.0.0.0"
+      - "PYTHONPATH=/usr/lib/custom-site-packages"
+      - "PIP_TARGET=/usr/lib/custom-site-packages"
+    networks:
+      - backend
+    # Enable GPU access in container
+    # https://docs.docker.com/engine/containers/resource_constraints/#gpu
+    # https://docs.docker.com/compose/how-tos/gpu-support/
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+networks: 
+  backend:
+    driver: bridge
+

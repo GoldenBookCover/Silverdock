@@ -75,6 +75,17 @@ DJANGO_PORT=18000
 DJANGO_STATS_PORT=19191
 FLASK_PORT=18008
 
+PYTHON_TORCH_VERSION="latest"
+# cuda 11.8: cu118
+# cuda 12.1: cu121
+# cudo 12.4: <blank>
+# rocm 6.2: rocm6.2
+# cpu: cpu
+PYTHON_TORCH_INDEX="cu118"
+PYTHON_TORCH_PORT="127.0.0.1:7860"
+
+PYTHON_REQUIREMENTS="gradio==4.40.0\nPyYAML==6.0.2\nrequests==2.32.3\n"
+
 
 
 ###########################################################################

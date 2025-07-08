@@ -88,6 +88,14 @@ RUN if [ ${INSTALL_MONGO} = true ]; then \
         php -m | grep -oiE '^mongodb$'; \
     fi
 
+# Install postgres extension
+ARG INSTALL_POSTGRES=false
+RUN if [ ${INSTALL_POSTGRES} = true ]; then \
+        apk --no-cache add postgresql-dev \
+        && docker-php-ext-install pdo pdo_pgsql; \
+        php -m | grep -oiE '^pdo_pgsql$'; \
+    fi
+
 # Install ZipArchive
 ARG INSTALL_ZIP_ARCHIVE=false
 RUN set -eux; \

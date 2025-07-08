@@ -3,7 +3,6 @@
 # All services:
 # workspace php-fpm mariadb mongo redis queue-worker django celery daphne
 
-version: '3'
 services:
   ###########################################################################
   # Database
@@ -19,7 +18,7 @@ services:
     ports:
       - "127.0.0.1:${MARIADB_PORT}:3306"
     volumes:
-      - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
+      - "${DATA_PATH_HOST}/mariadb${MARIADB_VERSION}:/var/lib/mysql"
     networks:
       backend:
         aliases:
@@ -56,7 +55,7 @@ services:
       - "995:995"
     volumes:
       - "${SSL_PATH}:/etc/letsencrypt"
-      - "./data/mail_data:/var/mail/vhosts"
+      - "${DATA_PATH_HOST}/mail_data:/var/mail/vhosts"
     networks:
       - backend
 
@@ -79,7 +78,7 @@ services:
       - "127.0.0.1:${DJANGO_PORT}:8000"
     volumes:
       - "${SSL_PATH}:/etc/letsencrypt"
-      - "./data/mail_data:/var/mail/vhosts"
+      - "${DATA_PATH_HOST}/mail_data:/var/mail/vhosts"
     networks:
       - backend
 

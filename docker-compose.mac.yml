@@ -3,7 +3,6 @@
 # All services:
 # workspace php-fpm mariadb mongo redis queue-worker django celery daphne
 
-version: '3'
 services:
   ###########################################################################
   # Workspace
@@ -137,7 +136,7 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     #restart: always
     #volumes:
-    #  - "./data/mariadb${MARIADB_VERSION}:/var/lib/mysql"
+    #  - "${DATA_PATH_HOST}/mariadb${MARIADB_VERSION}:/var/lib/mysql"
     ports:
       - "127.0.0.1:${MARIADB_PORT}:3306"
     networks:
@@ -156,8 +155,8 @@ services:
     expose:
       - "27017"
     volumes:
-      - ./data/mongo:/data/db
-      - ./data/mongo_config:/data/configdb
+      - ${DATA_PATH_HOST}/mongo:/data/db
+      - ${DATA_PATH_HOST}/mongo_config:/data/configdb
       #- /path/to/archive:/data/dump  # For backup
     environment:
       MONGO_INITDB_DATABASE: admin
@@ -174,7 +173,7 @@ services:
       - "6379"
     volumes:
       - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
-      #- "./data/redis:/data"
+      #- "${DATA_PATH_HOST}/redis:/data"
     networks: 
       - backend
 

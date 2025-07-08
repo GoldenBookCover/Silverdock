@@ -59,7 +59,7 @@ PHP_INSTALL_ZIP_ARCHIVE=true
 # Python
 ###########################################################################
 ## python version
-PYTHON_VERSION="3.11"
+PYTHON_VERSION="3.13"
 PYTHON_INSTALL_ANSIBLE=false
 PYTHON_INSTALL_CELERY=false
 PYTHON_INSTALL_CHANNELS=false
@@ -78,7 +78,7 @@ FLASK_PORT=18008
 PYTHON_TORCH_VERSION="latest"
 # cuda 11.8: cu118
 # cuda 12.1: cu121
-# cudo 12.4: <blank>
+# cuda 12.4: <blank>
 # rocm 6.2: rocm6.2
 # cpu: cpu
 PYTHON_TORCH_INDEX="cu118"
@@ -168,6 +168,13 @@ MONGO_ROOT_USERNAME=root
 MONGO_CLUSTER_NAME=mongo-cluster
 MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
 
+
+
+###########################################################################
+# Postgres
+###########################################################################
+POSTGRES_VERSION="17"
+POSTGRES_ADMIN_PASSWORD="postgres"
 
 ###########################################################################
 # Workspace

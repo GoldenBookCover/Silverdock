@@ -75,7 +75,7 @@ ARG APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 ARG PHP_INSTALL_MONGO=false
 RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt install -yqq libcurl4-openssl-dev libssl-dev \
-        && pecl install mongodb \
+        && pecl install mongodb-1.20.0 \
         && docker-php-ext-enable mongodb; \
         php -m | grep -oiE '^mongodb$'; \
     fi

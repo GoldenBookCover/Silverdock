@@ -13,9 +13,7 @@ COPY healthcheck.py /usr/local/bin/healthcheck.py
 RUN apt update -yqq \
     && apt install -yqq \
         python3 \
-        python3-pip \
-    && pip3 install -U \
-        pymongo \
+        python3-pymongo \
     && chmod 555 /usr/local/bin/healthcheck.py
 
 # https://docs.docker.com/engine/reference/builder/#healthcheck

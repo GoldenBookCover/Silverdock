@@ -1,0 +1,110 @@
+---
+
+services:
+  ###########################################################################
+  # Workspace
+  ###########################################################################
+  workspace:
+    image: chatbot_t-workspace:${CHATBOT_T_VERSION}
+    ports:
+     - "${WORKSPACE_SSH_PORT}:22"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/workspace.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  php-fpm:
+    image: chatbot_t-php-fpm:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    # Uncomment this to enable octane server
+    command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000 --task-workers=10 --workers=5
+    ports:
+      - "${PHP_FPM_LISTEN_PORT}:9000"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/fpm.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      backend:
+        aliases:
+          - php
+
+  ###########################################################################
+  # Database
+  ###########################################################################
+  mongo:
+    image: chatbot_t-mongo:${CHATBOT_T_VERSION}
+    # mongodb single instance
+    ##command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
+    # mongodb cluster
+    command: mongod --auth --replSet ${MONGO_CLUSTER_NAME} --bind_ip_all --keyFile /etc/mongo-cluster.key --port ${MONGODB_PORT} --wiredTigerCacheSizeGB 2
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_LISTEN_HOST}${MONGODB_PORT}:${MONGODB_PORT}"
+    volumes:
+      - "${DATA_PATH_HOST}/mongo:/data/db"
+      - "${DATA_PATH_HOST}/mongo_config:/data/configdb"
+      - "/var/backup/mongo:/data/dump"
+    environment:
+      - "MONGO_PORT=${MONGODB_PORT}"
+      - "MONGO_INITDB_DATABASE=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}"
+      - "MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}"
+      - "MONGO_KEYFILE_TEXT=${MONGO_KEYFILE_TEXT}"
+    networks:
+      - backend
+    extra_hosts:
+      - "mongo-m1:127.0.0.1"
+      - "mongo-s1:${MONGO_S1_IP}"
+
+  redis:
+    image: redis:7
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    expose: 
+      - "6379"
+    volumes:
+      - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis:/data"
+    networks: 
+      - backend
+
+  ###########################################################################
+  # Message Queue
+  ###########################################################################
+  php-worker:
+    image: chatbot_t-php-worker:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php-worker/supervisord.d:/etc/supervisord.d"
+      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
+      - "./log/php-worker:/var/log/supervisord"
+    depends_on:
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+
+  ### Laravel Echo Server #######################################
+  laravel-echo-server:
+    image: chatbot_t-laravel-echo-server:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ./conf/laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro
+    ports:
+      - "${LARAVEL_ECHO_SERVER_PORT}:6001"
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+networks: 
+  backend:
+    driver: bridge
+

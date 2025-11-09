@@ -5,7 +5,7 @@ services:
   # Workspace
   ###########################################################################
   workspace:
-    image: chatbot_t-workspace:${CHATBOT_T_VERSION}
+    image: mccarthf/chatbot-workspace:${CHATBOT_T_VERSION}
     ports:
      - "${WORKSPACE_SSH_PORT}:22"
     volumes:
@@ -18,7 +18,7 @@ services:
   # Backend
   ###########################################################################
   php-fpm:
-    image: chatbot_t-php-fpm:${CHATBOT_T_VERSION}
+    image: mccarthf/chatbot-php-fpm:${CHATBOT_T_VERSION}
     restart: unless-stopped
     # Uncomment this to enable octane server
     command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000 --task-workers=10 --workers=5
@@ -36,7 +36,7 @@ services:
   # Database
   ###########################################################################
   mongo:
-    image: chatbot_t-mongo:${CHATBOT_T_VERSION}
+    image: mccarthf/chatbot-mongo:${CHATBOT_T_VERSION}
     # mongodb single instance
     ##command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
     # mongodb cluster
@@ -76,7 +76,7 @@ services:
   # Message Queue
   ###########################################################################
   php-worker:
-    image: chatbot_t-php-worker:${CHATBOT_T_VERSION}
+    image: mccarthf/chatbot-php-worker:${CHATBOT_T_VERSION}
     restart: unless-stopped
     volumes:
       - "${PROJECT_ROOT_PATH}:/var/www"
@@ -93,7 +93,7 @@ services:
 
   ### Laravel Echo Server #######################################
   laravel-echo-server:
-    image: chatbot_t-laravel-echo-server:${CHATBOT_T_VERSION}
+    image: mccarthf/chatbot-laravel-echo-server:${CHATBOT_T_VERSION}
     restart: unless-stopped
     volumes:
       - ./conf/laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro

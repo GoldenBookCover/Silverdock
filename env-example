@@ -16,6 +16,7 @@ DATA_PATH_HOST=./data
 SERVER_MOUNT_PATH='./dummy_data'
 CHANGE_SOURCE=false
 
+CHATBOT_T_VERSION=latest
 
 ###########################################################################
 # PHP
@@ -59,7 +60,7 @@ PHP_INSTALL_ZIP_ARCHIVE=true
 # Python
 ###########################################################################
 ## python version
-PYTHON_VERSION="3.11"
+PYTHON_VERSION="3.13"
 PYTHON_INSTALL_ANSIBLE=false
 PYTHON_INSTALL_CELERY=false
 PYTHON_INSTALL_CHANNELS=false
@@ -129,7 +130,7 @@ VARNISH_BACKEND_PORT=81
 # NodeJS
 ###########################################################################
 INSTALL_NODEJS=true
-NODEJS_VERSION="20"
+NODEJS_VERSION="22"
 
 
 
@@ -155,7 +156,7 @@ MARIADB_REPLICA_DATABASES="mydb"
 # MongoDB
 ###########################################################################
 ## MongoDB version
-MONGO_VERSION="6.0"
+MONGO_VERSION="8.0"
 
 # <empty> or "127.0.0.1:"
 MONGODB_LISTEN_HOST=""
@@ -166,6 +167,7 @@ MONGO_ROOT_USERNAME=root
 
 # Communication encryption in replication
 MONGO_CLUSTER_NAME=mongo-cluster
+MONGO_S1_IP="192.168.50.50"
 MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
 
 
@@ -174,7 +176,7 @@ MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
 ###########################################################################
 WORKSPACE_BASE="python"
 WORKSPACE_TIMEZONE=UTC
-WORKSPACE_SSH_PORT="2222"
+WORKSPACE_SSH_PORT="2001"
 WORKSPACE_SSH_PUBKEY=""
 
 

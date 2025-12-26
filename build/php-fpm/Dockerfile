@@ -1,6 +1,6 @@
 
 ARG SILVERDOCK_PHP_VERSION
-ARG OS_PREFER=bookworm
+ARG OS_PREFER=trixie
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
@@ -147,6 +147,9 @@ ARG PHP_INSTALL_INTL=false
 RUN set -eux; \
     if [ ${PHP_INSTALL_INTL} = true ]; then \
       # Install php intl Extension
+      # https://github.com/docker-library/php/issues/1216
+      apt update; \
+      apt install -yqq libicu-dev; \
       docker-php-ext-install intl; \
       php -m | grep -q '^intl$'; \
     fi
@@ -169,7 +172,8 @@ RUN apt update \
     && touch /usr/local/etc/php/conf.d/silver.ini \
     && groupmod -o -g ${PGID} www-data \
     && usermod -o -u ${PUID} -g www-data www-data \
-    && echo "#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /var/www/artisan schedule:run > /dev/null 2>&1\n" >> /etc/crontab \
+    && echo "MAILTO=''\n#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /var/www/artisan schedule:run > /dev/null 2>&1\n" >> /etc/crontab \
+    && echo "#Remove temporary files\n*/3 * * * * root /usr/bin/find /tmp/ -mmin +2 -name 'swoole.task.*' -print0 | xargs -0 -n 20 rm\n" >> /etc/crontab \
     && mkdir -p /var/www
 
 WORKDIR /var/www

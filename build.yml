@@ -1,0 +1,350 @@
+---
+# All services:
+
+services:
+  ###########################################################################
+  # Workspace
+  ###########################################################################
+  workspace:
+    build:
+      context: ./build/workspace-${WORKSPACE_BASE}
+      args:
+        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+        - "PHP_INSTALL_GD=${PHP_INSTALL_GD}"
+        - "PHP_INSTALL_GMP=${PHP_INSTALL_GMP}"
+        - "PHP_INSTALL_MONGO=${PHP_INSTALL_MONGO}"
+        - "PHP_INSTALL_REDIS=${PHP_INSTALL_REDIS}"
+        - "PHP_INSTALL_OPENCC=${PHP_INSTALL_OPENCC}"
+        - "PHP_INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
+        - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
+        - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
+        - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "PHP_INSTALL_WPCLI=${PHP_INSTALL_WPCLI}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
+        - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
+        - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
+        - "PYTHON_INSTALL_GOOGLEAPI=${PYTHON_INSTALL_GOOGLEAPI}"
+        - "PYTHON_INSTALL_ELASTICSEARCH=${PYTHON_INSTALL_ELASTICSEARCH}"
+        - "PYTHON_INSTALL_NMAP=${PYTHON_INSTALL_NMAP}"
+        - "PYTHON_INSTALL_PYTEST=${PYTHON_INSTALL_PYTEST}"
+        - "PYTHON_INSTALL_REDIS=${PYTHON_INSTALL_REDIS}"
+        - "PYTHON_INSTALL_TREEBEARD=${PYTHON_INSTALL_TREEBEARD}"
+        - "PYTHON_INSTALL_WKHTMLTOPDF=${PYTHON_INSTALL_WKHTMLTOPDF}"
+        - "PYTHON_IS_PRODUCTION=${PYTHON_IS_PRODUCTION}"
+        - "INSTALL_NODEJS=${INSTALL_NODEJS}"
+        - "NODEJS_VERSION=${NODEJS_VERSION}"
+        - "WORKSPACE_SSH_PUBKEY=${WORKSPACE_SSH_PUBKEY}"
+    ports:
+     - "${WORKSPACE_SSH_PORT}:22"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/workspace.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  php-fpm:
+    build:
+      context: ./build/php-fpm
+      args:
+        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
+        - "ENABLE_CRONJOB=${PHP_ENABLE_CRONJOB}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+        - "PHP_INSTALL_GD=${PHP_INSTALL_GD}"
+        - "PHP_INSTALL_GMP=${PHP_INSTALL_GMP}"
+        - "PHP_INSTALL_MONGO=${PHP_INSTALL_MONGO}"
+        - "PHP_INSTALL_REDIS=${PHP_INSTALL_REDIS}"
+        - "PHP_INSTALL_OPENCC=${PHP_INSTALL_OPENCC}"
+        - "PHP_INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
+        - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
+        - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
+        - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
+    restart: unless-stopped
+    # Uncomment this to enable octane server
+    #command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000
+    ports:
+      - "${PHP_FPM_LISTEN_PORT}:9000"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/fpm.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      backend:
+        aliases:
+          - php
+
+  django:
+    build:
+      context: ./build/django
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
+        - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
+        - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
+        - "PYTHON_INSTALL_ELASTICSEARCH=${PYTHON_INSTALL_ELASTICSEARCH}"
+        - "PYTHON_INSTALL_GOOGLEAPI=${PYTHON_INSTALL_GOOGLEAPI}"
+        - "PYTHON_INSTALL_NMAP=${PYTHON_INSTALL_NMAP}"
+        - "PYTHON_INSTALL_PYTEST=${PYTHON_INSTALL_PYTEST}"
+        - "PYTHON_INSTALL_REDIS=${PYTHON_INSTALL_REDIS}"
+        - "PYTHON_INSTALL_TREEBEARD=${PYTHON_INSTALL_TREEBEARD}"
+        - "PYTHON_INSTALL_WKHTMLTOPDF=${PYTHON_INSTALL_WKHTMLTOPDF}"
+        - "PYTHON_IS_PRODUCTION=${PYTHON_IS_PRODUCTION}"
+    #command: uwsgi --ini uwsgi.ini
+    restart: unless-stopped
+    ports: 
+      - "${DJANGO_PORT}:8000"
+      - "${DJANGO_STATS_PORT}:9191"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/python/uwsgi-django.ini:/var/www/uwsgi.ini"
+    networks:
+      - backend
+
+  flask:
+    build:
+      context: ./build/flask
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
+        - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
+        - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
+        - "PYTHON_INSTALL_ELASTICSEARCH=${PYTHON_INSTALL_ELASTICSEARCH}"
+        - "PYTHON_INSTALL_GOOGLEAPI=${PYTHON_INSTALL_GOOGLEAPI}"
+        - "PYTHON_INSTALL_NMAP=${PYTHON_INSTALL_NMAP}"
+        - "PYTHON_INSTALL_PYTEST=${PYTHON_INSTALL_PYTEST}"
+        - "PYTHON_INSTALL_REDIS=${PYTHON_INSTALL_REDIS}"
+        - "PYTHON_INSTALL_TREEBEARD=${PYTHON_INSTALL_TREEBEARD}"
+        - "PYTHON_INSTALL_WKHTMLTOPDF=${PYTHON_INSTALL_WKHTMLTOPDF}"
+        - "PYTHON_IS_PRODUCTION=${PYTHON_IS_PRODUCTION}"
+    #command: uwsgi --ini uwsgi.ini
+    restart: unless-stopped
+    ports: 
+      - "${FLASK_PORT}:8000"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/python/uwsgi-flask.ini:/var/www/uwsgi.ini"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Nginx
+  ###########################################################################
+  nginx:
+    build:
+      context: ./build/nginx
+      args:
+        - "PHP_UPSTREAM_CONTAINER=${NGINX_PHP_UPSTREAM_CONTAINER:-localhost}"
+        - "PHP_UPSTREAM_PORT=${NGINX_PHP_UPSTREAM_PORT}"
+        - "PYTHON_UPSTREAM_CONTAINER=${NGINX_PYTHON_UPSTREAM_CONTAINER:-localhost}"
+        - "PYTHON_UPSTREAM_PORT=${NGINX_PYTHON_UPSTREAM_PORT}"
+        - "JAVA_UPSTREAM_CONTAINER=${NGINX_JAVA_UPSTREAM_CONTAINER:-localhost}"
+        - "JAVA_UPSTREAM_PORT=${NGINX_JAVA_UPSTREAM_PORT}"
+        - "http_proxy"
+        - "https_proxy"
+        - "no_proxy"
+    restart: unless-stopped
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "${NGINX_HOST_LOG_PATH}:/var/log/nginx"
+      - "${NGINX_SITES_PATH}:/etc/nginx/sites-available"
+      - "${NGINX_SSL_PATH}:/etc/nginx/ssl"
+    ports:
+      - "${NGINX_HOST_HTTP_PORT}:80"
+      - "${NGINX_HOST_HTTPS_PORT}:443"
+      - "${VARNISH_BACKEND_PORT}:81"
+    networks:
+      - backend
+
+  ###########################################################################
+  # Database
+  ###########################################################################
+  mariadb:
+    build:
+      context: ./build/mariadb
+      args:
+        - "http_proxy"
+        - "https_proxy"
+        - "no_proxy"
+        - "MARIADB_VERSION=${MARIADB_VERSION}"
+        - "MARIADB_REPLICA_STATE=${MARIADB_REPLICA_STATE}"
+        - "MARIADB_REPLICA_ID=${MARIADB_REPLICA_ID}"
+        - "MARIADB_REPLICA_DATABASES=${MARIADB_REPLICA_DATABASES}"
+    restart: unless-stopped
+    volumes:
+      - "${DATA_PATH_HOST}/mariadb:/var/lib/mysql"
+      - "${DATA_PATH_HOST}/mysql_ssl:/etc/mysql_ssl"
+      - "${MARIADB_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
+    ports:
+      - "${MARIADB_PORT}:3306"
+    environment:
+      - "TZ=${WORKSPACE_TIMEZONE}"
+      - "MYSQL_DATABASE=${MARIADB_DATABASE}"
+      - "MYSQL_USER=${MARIADB_USER}"
+      - "MYSQL_PASSWORD=${MARIADB_PASSWORD}"
+      - "MYSQL_ROOT_PASSWORD=${MARIADB_ROOT_PASSWORD}"
+    networks:
+      backend:
+        aliases:
+          - mysql
+
+  mongo:
+    build:
+      context: ./build/mongo
+      args:
+        - "MONGO_VERSION=${MONGO_VERSION}"
+        - "MONGO_KEYFILE_TEXT=${MONGO_KEYFILE_TEXT}"
+    command: mongod --auth --bind_ip_all --port ${MONGODB_PORT}
+    # mongodb cluster
+    # command: mongod --auth --replSet ${MONGO_CLUSTER_NAME} --bind_ip_all --keyFile /etc/mongo-cluster.key --port ${MONGODB_PORT}
+    restart: unless-stopped
+    ports:
+      - "${MONGODB_LISTEN_HOST}${MONGODB_PORT}:${MONGODB_PORT}"
+    volumes:
+      - "${DATA_PATH_HOST}/mongo:/data/db"
+      - "${DATA_PATH_HOST}/mongo_config:/data/configdb"
+    environment:
+      - "MONGO_PORT=${MONGODB_PORT}"
+      - "MONGO_INITDB_DATABASE=admin"
+      - "MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}"
+      - "MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME}"
+    networks:
+      - backend
+
+  redis:
+    image: redis:7
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    expose: 
+      - "6379"
+    volumes:
+      - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis:/data"
+    networks: 
+      - backend
+
+  ###########################################################################
+  # Message Queue
+  ###########################################################################
+  queue-worker:
+    build:
+      context: ./build/php-fpm
+      args:
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+        - "PHP_INSTALL_GD=${PHP_INSTALL_GD}"
+        - "PHP_INSTALL_GMP=${PHP_INSTALL_GMP}"
+        - "PHP_INSTALL_MONGO=${PHP_INSTALL_MONGO}"
+        - "PHP_INSTALL_REDIS=${PHP_INSTALL_REDIS}"
+        - "PHP_INSTALL_OPENCC=${PHP_INSTALL_OPENCC}"
+        - "PHP_INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
+        - "PHP_INSTALL_GRPC=${PHP_INSTALL_GRPC}"
+        - "PHP_INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
+        - "PHP_INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "PHP_INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "PHP_INSTALL_INTL=${PHP_INSTALL_INTL}"
+    restart: unless-stopped
+    user: www-data
+    entrypoint: ""
+    command: php /var/www/artisan queue:work --sleep=3 --tries=3
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
+    depends_on:
+      - php-fpm
+    networks:
+      - backend
+
+  php-worker:
+    build:
+      context: ./build/php-worker
+      args:
+        - "SILVERDOCK_PHP_VERSION=${PHP_VERSION}"
+        - "CHANGE_SOURCE=${CHANGE_SOURCE}"
+        - "INSTALL_BCMATH=${PHP_INSTALL_BCMATH}"
+        - "INSTALL_GD=${PHP_INSTALL_GD}"
+        - "INSTALL_GMP=${PHP_INSTALL_GMP}"
+        - "INSTALL_GRPC=${PHP_INSTALL_GRPC}"
+        - "INSTALL_MONGO=${PHP_INSTALL_MONGO}"
+        - "INSTALL_MYSQL_CLIENT=${PHP_INSTALL_MYSQL_CLIENT}"
+        - "INSTALL_PCNTL=${PHP_INSTALL_PCNTL}"
+        - "INSTALL_PROTOBUF=${PHP_INSTALL_PROTOBUF}"
+        - "INSTALL_REDIS=${PHP_INSTALL_REDIS}"
+        - "INSTALL_SWOOLE=${PHP_INSTALL_SWOOLE}"
+        - "INSTALL_FFMPEG=${PHP_INSTALL_FFMPEG}"
+        - "INSTALL_INTL=${PHP_INSTALL_INTL}"
+        - "INSTALL_ZIP_ARCHIVE=${PHP_INSTALL_ZIP_ARCHIVE}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
+    restart: unless-stopped
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php-worker/supervisord.d:/etc/supervisord.d"
+      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
+      - "./log/php-worker:/var/log/supervisord"
+    depends_on:
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+
+  celery:
+    build:
+      context: ./build/celery
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+    command: celery -A core worker -l INFO
+    restart: unless-stopped
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+    networks:
+      - backend
+
+  ### Laravel Echo Server #######################################
+  laravel-echo-server:
+    build:
+      context: ./build/laravel-echo-server
+    restart: unless-stopped
+    volumes:
+      - ./conf/laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro
+    ports:
+      - "${LARAVEL_ECHO_SERVER_PORT}:6001"
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+  daphne:
+    build:
+      context: ./build/daphne
+      args:
+        - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
+        - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+    command: daphne -b 0.0.0.0 -p 8000 core.asgi:application
+    restart: unless-stopped
+    ports: 
+      - "28002:8000"
+    volumes: 
+      - "${PROJECT_ROOT_PATH}:/var/www"
+    networks:
+      - backend
+
+networks: 
+  backend:
+    driver: bridge

@@ -20,6 +20,7 @@ services:
   php-fpm:
     image: mccarthf/chatbot-php-fpm:${CHATBOT_T_VERSION}
     restart: unless-stopped
+    init: true
     # Uncomment this to enable octane server
     command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000 --task-workers=10 --workers=5
     ports:

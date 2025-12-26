@@ -1,6 +1,6 @@
 
 ARG SILVERDOCK_PHP_VERSION
-ARG OS_PREFER=bookworm
+ARG OS_PREFER=trixie
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
@@ -158,6 +158,9 @@ ARG PHP_INSTALL_INTL=false
 RUN set -eux; \
     if [ ${PHP_INSTALL_INTL} = true ]; then \
       # Install php intl Extension
+      # https://github.com/docker-library/php/issues/1216
+      apt update; \
+      apt install -yqq libicu-dev; \
       docker-php-ext-install intl; \
       php -m | grep -q '^intl$'; \
     fi
@@ -189,12 +192,12 @@ RUN if [ ${PHP_INSTALL_REDIS} = true ]; then \
         apt install -yqq redis; \
     fi
 
-ARG SIRVERDOCK_MONGO_VERSION="6.0"
+ARG SIRVERDOCK_MONGO_VERSION="8.0"
 RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         apt -y install gnupg \
         && curl -fsSL https://www.mongodb.org/static/pgp/server-${SIRVERDOCK_MONGO_VERSION}.asc | \
             gpg -o /usr/share/keyrings/mongodb-server-${SIRVERDOCK_MONGO_VERSION}.gpg --dearmor \
-        && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-${SIRVERDOCK_MONGO_VERSION}.gpg] http://repo.mongodb.org/apt/debian $(lsb_release -sc)/mongodb-org/${SIRVERDOCK_MONGO_VERSION} main" | tee /etc/apt/sources.list.d/mongodb-org-${SIRVERDOCK_MONGO_VERSION}.list \
+        && echo "deb [ signed-by=/usr/share/keyrings/mongodb-server-${SIRVERDOCK_MONGO_VERSION}.gpg ] http://repo.mongodb.org/apt/debian bookworm/mongodb-org/${SIRVERDOCK_MONGO_VERSION} main" > /etc/apt/sources.list.d/mongodb-org-${SIRVERDOCK_MONGO_VERSION}.list \
         && apt update \
         && if [ ${SIRVERDOCK_MONGO_VERSION%%.*} -lt 5 ]; then \
              apt -yqq install mongodb-org-shell; \

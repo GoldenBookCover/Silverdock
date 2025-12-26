@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.11
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """
@@ -6,6 +6,7 @@ This script provides quick access to some docker actions
 
 Dependencies:
   pip install python-dotenv
+  apt install python3-dotenv
 """
 
 import os

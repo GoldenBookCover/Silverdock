@@ -16,6 +16,7 @@ RUN apk --update add \
         autoconf \
         build-base \
         curl \
+        cjson \
         cyrus-sasl-dev \
         git \
         libgsasl-dev \

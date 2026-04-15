@@ -1,7 +1,5 @@
 ---
-# All services:
 
-version: '3'
 services:
   ###########################################################################
   # Workspace
@@ -92,6 +90,8 @@ services:
       args:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
         - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
         - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
         - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
@@ -121,6 +121,8 @@ services:
       args:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
         - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
         - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
         - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"
@@ -149,6 +151,8 @@ services:
       args:
         - "SILVERDOCK_PYTHON_VERSION=${PYTHON_VERSION}"
         - "PROJECT_NAME=${COMPOSE_PROJECT_NAME}"
+        - "PUID=${PHP_PUID}"
+        - "PGID=${PHP_PGID}"
         - "PYTHON_INSTALL_ANSIBLE=${PYTHON_INSTALL_ANSIBLE}"
         - "PYTHON_INSTALL_CHANNELS=${PYTHON_INSTALL_CHANNELS}"
         - "PYTHON_INSTALL_CELERY=${PYTHON_INSTALL_CELERY}"

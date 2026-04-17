@@ -145,7 +145,7 @@ MARIADB_USER=myadmin
 MARIADB_PASSWORD=mypass
 MARIADB_PORT=3306
 MARIADB_ROOT_PASSWORD=toor
-MARIADB_ENTRYPOINT_INITDB=./mariadb/docker-entrypoint-initdb.d
+MARIADB_ENTRYPOINT_INITDB=./docker-entrypoint-initdb.d/mariadb
 
 # <empty> | master | slave
 MARIADB_REPLICA_STATE=""
@@ -157,7 +157,6 @@ MARIADB_REPLICA_DATABASES="mydb"
 ###########################################################################
 # MongoDB
 ###########################################################################
-## MongoDB version
 MONGO_VERSION="8.0"
 
 # <empty> or "127.0.0.1:"
@@ -171,6 +170,30 @@ MONGO_ROOT_USERNAME=root
 MONGO_CLUSTER_NAME=mongo-cluster
 MONGO_S1_IP="192.168.50.50"
 MONGO_KEYFILE_TEXT="exec 'openssl rand -base64 756'"
+
+
+
+###########################################################################
+# Postgres
+###########################################################################
+POSTGRES_VERSION="17"
+
+POSTGRES_PORT=5432
+
+POSTGRES_ROOT_PASSWORD=super_secret_password
+POSTGRES_ROOT_USERNAME=postgres
+
+# Scripts will be executed on initialization. To learn more:
+# https://hub.docker.com/_/postgres#initialization-scripts
+POSTGRES_ENTRYPOINT_INITDB=./docker-entrypoint-initdb.d/postgres
+
+# Will be created on initialization
+# Skipped when data volume already exits
+# This user is granted OWNER and most privileges on SCHEMA public
+POSTGRES_DB_PASSWORD=app_password
+POSTGRES_DB_USER=app_user
+POSTGRES_DB_NAME=app_db
+
 
 
 ###########################################################################

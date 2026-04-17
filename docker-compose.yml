@@ -234,6 +234,29 @@ services:
         aliases:
           - mysql
 
+  postgres:
+    build:
+      context: ./build/postgres
+      args:
+        - "POSTGRES_VERSION=${POSTGRES_VERSION}"
+        - "POSTGRES_USER=${POSTGRES_ROOT_USERNAME}"
+    shm_size: 128mb
+    restart: unless-stopped
+    environment:
+      - "PGDATA=/var/lib/postgresql/${POSTGRES_VERSION}/docker"
+      - "POSTGRES_PASSWORD=${POSTGRES_ROOT_PASSWORD}"
+      - "POSTGRES_USER=${POSTGRES_ROOT_USERNAME}"
+      - "POSTGRES_DB_NAME=${POSTGRES_DB_NAME}"
+      - "POSTGRES_DB_USER=${POSTGRES_DB_USER}"
+      - "POSTGRES_DB_PASSWORD=${POSTGRES_DB_PASSWORD}"
+    volumes:
+      - "${DATA_PATH_HOST}/postgres:/var/lib/postgresql"
+      - "${POSTGRES_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d"
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - backend
+
   mongo:
     build:
       context: ./build/mongo

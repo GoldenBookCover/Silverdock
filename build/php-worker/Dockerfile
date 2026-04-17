@@ -92,7 +92,8 @@ RUN if [ ${INSTALL_MONGO} = true ]; then \
 # Install postgres driver
 ARG INSTALL_POSTGRES=false
 RUN if [ ${INSTALL_POSTGRES} = true ]; then \
-        apk add --update --no-cache libpq-dev \
+        apk del libressl-dev \
+        && apk add --update --no-cache libpq-dev \
         && docker-php-ext-install pdo_pgsql pgsql; \
         php -m | grep -oiE '^pdo_pgsql$'; \
     fi

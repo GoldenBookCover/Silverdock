@@ -1,11 +1,11 @@
 
-ARG SILVERDOCK_PHP_VERSION
+ARG SILVERDOCK_PHP_VERSION=8.3
 ARG OS_PREFER=trixie
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
 # Set Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG SILVERDOCK_PHP_VERSION
 
@@ -36,6 +36,7 @@ RUN set -xe; \
 # Install php modules
 RUN docker-php-ext-enable mysqli exif \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
+
 
 # Optional
 # Install gd
@@ -78,6 +79,14 @@ RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         && pecl install mongodb-1.20.0 \
         && docker-php-ext-enable mongodb; \
         php -m | grep -oiE '^mongodb$'; \
+    fi
+
+# Install postgres extension
+ARG PHP_INSTALL_POSTGRES=false
+RUN if [ ${PHP_INSTALL_POSTGRES} = true ]; then \
+        apt install -yqq libpq-dev \
+        && docker-php-ext-install pdo_pgsql pgsql; \
+        php -m | grep -oiE '^pdo_pgsql$'; \
     fi
 
 # Install redis extension
@@ -172,7 +181,7 @@ RUN apt update \
     && touch /usr/local/etc/php/conf.d/silver.ini \
     && groupmod -o -g ${PGID} www-data \
     && usermod -o -u ${PUID} -g www-data www-data \
-    && echo "MAILTO=''\n#SilverDock cron job\n* * * * * www-data /usr/local/bin/php /var/www/artisan schedule:run > /dev/null 2>&1\n" >> /etc/crontab \
+    && echo "MAILTO=''\n#Silverdock cron job\n* * * * * www-data /usr/local/bin/php /var/www/artisan schedule:run > /dev/null 2>&1\n" >> /etc/crontab \
     && echo "#Remove temporary files\n*/3 * * * * root /usr/bin/find /tmp/ -mmin +2 -name 'swoole.task.*' -print0 | xargs -0 -n 20 rm\n" >> /etc/crontab \
     && mkdir -p /var/www
 

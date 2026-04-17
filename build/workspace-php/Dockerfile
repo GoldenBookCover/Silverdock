@@ -1,14 +1,13 @@
 
-ARG SILVERDOCK_PHP_VERSION
+ARG SILVERDOCK_PHP_VERSION=8.3
 ARG OS_PREFER=trixie
 
 FROM php:${SILVERDOCK_PHP_VERSION}-fpm-${OS_PREFER}
 
 # Set Environment Variables
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG SILVERDOCK_PHP_VERSION
-ARG OS_PREFER=bookworm
 
 # Mandatory
 RUN set -xe; \
@@ -44,9 +43,10 @@ RUN set -xe; \
 RUN docker-php-ext-enable mysqli exif \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+
 
 # Optional
 # Install gi
@@ -89,6 +89,14 @@ RUN if [ ${PHP_INSTALL_MONGO} = true ]; then \
         && pecl install mongodb-1.20.0 \
         && docker-php-ext-enable mongodb; \
         php -m | grep -oiE '^mongodb$'; \
+    fi
+
+# Install postgres extension
+ARG PHP_INSTALL_POSTGRES=false
+RUN if [ ${PHP_INSTALL_POSTGRES} = true ]; then \
+        apt install -yqq libpq-dev \
+        && docker-php-ext-install pdo_pgsql pgsql; \
+        php -m | grep -oiE '^pdo_pgsql$'; \
     fi
 
 # Install redis extension
@@ -172,9 +180,9 @@ RUN curl -sS https://getcomposer.org/installer | php \
 
 ARG PROJECT_NAME=html
 ARG PUID=1000
-ENV PUID ${PUID}
+ENV PUID=${PUID}
 ARG PGID=1000
-ENV PGID ${PGID}
+ENV PGID=${PGID}
 
 # Import entrypoint script to control startup
 COPY entrypoint.sh /usr/local/bin/entrypoint

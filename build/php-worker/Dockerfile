@@ -1,4 +1,4 @@
-ARG SILVERDOCK_PHP_VERSION
+ARG SILVERDOCK_PHP_VERSION=8.3
 ARG OS_PREFER=alpine
 
 FROM php:${SILVERDOCK_PHP_VERSION}-${OS_PREFER}
@@ -87,6 +87,14 @@ RUN if [ ${INSTALL_MONGO} = true ]; then \
         fi; \
         docker-php-ext-enable mongodb; \
         php -m | grep -oiE '^mongodb$'; \
+    fi
+
+# Install postgres driver
+ARG INSTALL_POSTGRES=false
+RUN if [ ${INSTALL_POSTGRES} = true ]; then \
+        apk add --update --no-cache libpq-dev \
+        && docker-php-ext-install pdo_pgsql pgsql; \
+        php -m | grep -oiE '^pdo_pgsql$'; \
     fi
 
 # Install ZipArchive
@@ -192,9 +200,9 @@ ENTRYPOINT ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
 RUN php -v | grep -q "^PHP ${SILVERDOCK_PHP_VERSION}."
 
 ARG PUID=1000
-ENV PUID ${PUID}
+ENV PUID=${PUID}
 ARG PGID=1000
-ENV PGID ${PGID}
+ENV PGID=${PGID}
 
 RUN apk add shadow && \
     groupadd -o -g ${PGID} silverdock && \

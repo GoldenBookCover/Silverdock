@@ -37,9 +37,10 @@ RUN set -xe; \
     else \
         docker-php-ext-configure zip --with-libzip; \
     fi \
-    && docker-php-ext-install zip pdo_mysql mysqli exif bcmath \
+    && docker-php-ext-install zip pdo_mysql mysqli exif bcmath sockets \
     && php -m | grep -q '^zip$'
-# Install php modules
+
+    # Install php modules
 RUN docker-php-ext-enable mysqli exif \
     && mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
 

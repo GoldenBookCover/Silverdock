@@ -1,0 +1,86 @@
+---
+
+services:
+  ###########################################################################
+  # Workspace
+  ###########################################################################
+  workspace:
+    image: mccarthf/chatbot-workspace:${CHATBOT_T_VERSION}
+    ports:
+     - "${WORKSPACE_SSH_PORT}:22"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/workspace.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ###########################################################################
+  # Backend
+  ###########################################################################
+  php-fpm:
+    image: mccarthf/chatbot-php-fpm:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    init: true
+    # Uncomment this to enable octane server
+    command: gosu www-data php artisan octane:start --host=0.0.0.0 --port=9000 --task-workers=10 --workers=5
+    ports:
+      - "${PHP_FPM_LISTEN_PORT}:9000"
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php/fpm.ini:/usr/local/etc/php/conf.d/silver.ini"
+    networks:
+      backend:
+        aliases:
+          - php
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  redis:
+    image: redis:7
+    command: redis-server /usr/local/etc/redis/redis.conf
+    restart: unless-stopped
+    expose: 
+      - "6379"
+    volumes:
+      - "./conf/redis/redis.conf:/usr/local/etc/redis/redis.conf"
+      - "./data/redis:/data"
+    networks: 
+      - backend
+
+  ###########################################################################
+  # Message Queue
+  ###########################################################################
+  php-worker:
+    image: mccarthf/chatbot-php-worker:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    volumes:
+      - "${PROJECT_ROOT_PATH}:/var/www"
+      - "./conf/php-worker/supervisord.d:/etc/supervisord.d"
+      - "./conf/php/queue.ini:/usr/local/etc/php/conf.d/silver.ini"
+      - "./log/php-worker:/var/log/supervisord"
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  ### Laravel Echo Server #######################################
+  laravel-echo-server:
+    image: mccarthf/chatbot-laravel-echo-server:${CHATBOT_T_VERSION}
+    restart: unless-stopped
+    volumes:
+      - ./conf/laravel-echo-server/laravel-echo-server.json:/usr/src/app/laravel-echo-server.json:ro
+    ports:
+      - "${LARAVEL_ECHO_SERVER_PORT}:6001"
+    depends_on:
+      - redis
+    networks:
+      - backend
+
+networks: 
+  backend:
+    driver: bridge

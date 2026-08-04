@@ -6,4 +6,4 @@ autorestart=true
 numprocs=4
 user=silverdock
 redirect_stderr=true
-stdout_logfile=/var/log/supervisord/default.log
+stdout_logfile=/var/log/supervisord/%(program_name)s.log

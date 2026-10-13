@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:24-alpine
 
 # Create app directory
 RUN mkdir -p /usr/src/app
@@ -15,9 +15,14 @@ RUN apk add --update \
 
 RUN npm install
 
+# Patch for laravel-echo-server: infinite restarting
+COPY presence-channel.js /usr/src/app/node_modules/laravel-echo-server/dist/channels/presence-channel.js
+COPY cli.js /usr/src/app/node_modules/laravel-echo-server/dist/cli/cli.js
+
 # Bundle app source
 COPY development.json /usr/src/app/laravel-echo-server.json
 
 EXPOSE 3000
 ENTRYPOINT []
 CMD [ "npm", "start" ]
+
